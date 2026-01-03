@@ -132,6 +132,59 @@ class UI {
         // Import Last Day Buttons
         document.getElementById('import-last-env').addEventListener('click', () => this.importLastDayData('environment'));
         document.getElementById('import-last-care').addEventListener('click', () => this.importLastDayData('personal_care'));
+
+        // --- NEW BASIC TAB LOGIC ---
+
+        // Suggestion Chips
+        document.querySelectorAll('.suggestion-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                const area = document.getElementById('env-experience');
+                const current = area.value;
+                area.value = current ? `${current}, ${chip.innerText}` : chip.innerText;
+            });
+        });
+
+        // Color-Coded Sliders
+        const linkSliderToLabel = (sliderId, labelId, valueId, getLabelClass) => {
+            const slider = document.getElementById(sliderId);
+            const label = document.getElementById(labelId);
+            const valDisplay = document.getElementById(valueId);
+            if (!slider || !label) return;
+
+            const update = () => {
+                const val = parseInt(slider.value);
+                if (valDisplay) valDisplay.innerText = val;
+
+                // Remove old classes
+                label.className = '';
+                // Get new class and text
+                const res = getLabelClass(val);
+                label.innerText = res.text;
+                label.classList.add(res.cls);
+                // Re-add id if needed or just rely on parent select
+                label.id = labelId;
+            };
+
+            slider.addEventListener('input', update);
+            // Initial call relies on loadEntry setting value first
+        };
+
+        linkSliderToLabel('aqi', 'aqi-label', 'aqi-value', (val) => {
+            if (val <= 50) return { text: 'Good', cls: 'aqi-good' };
+            if (val <= 100) return { text: 'Moderate', cls: 'aqi-moderate' };
+            if (val <= 150) return { text: 'Unhealthy (Sens.)', cls: 'aqi-unhealthy-sensitive' };
+            if (val <= 200) return { text: 'Unhealthy', cls: 'aqi-unhealthy' };
+            if (val <= 300) return { text: 'Very Unhealthy', cls: 'aqi-very-unhealthy' };
+            return { text: 'Hazardous', cls: 'aqi-hazardous' };
+        });
+
+        linkSliderToLabel('uv-index', 'uv-label', 'uv-value', (val) => {
+            if (val <= 2) return { text: 'Low', cls: 'uv-low' };
+            if (val <= 5) return { text: 'Moderate', cls: 'uv-moderate' };
+            if (val <= 7) return { text: 'High', cls: 'uv-high' };
+            if (val <= 10) return { text: 'Very High', cls: 'uv-very-high' };
+            return { text: 'Extreme', cls: 'uv-extreme' };
+        });
     }
 
     // -------------------------------------------------------------------------
@@ -231,7 +284,7 @@ class UI {
             weekday: d.toLocaleDateString('en-US', { weekday: 'long' }),
 
             environment: {
-                temperature_c: getVal('temperature'),
+                temperature_c: getVal('temp-min') && getVal('temp-max') ? `${getVal('temp-min')}-${getVal('temp-max')}` : getVal('temperature'), // Fallback or new format
                 air_quality_index: getNum('aqi'),
                 humidity_percent: getNum('humidity'),
                 uv_index: getNum('uv-index'),
@@ -322,11 +375,27 @@ class UI {
         // Environment
         if (data.environment) {
             setVal('weather-condition', data.environment.weather_condition);
-            setVal('temperature', data.environment.temperature_c);
+
+            // Handle Temp Split
+            const rawTemp = data.environment.temperature_c || "";
+            if (rawTemp.includes('-')) {
+                const parts = rawTemp.split('-');
+                setVal('temp-min', parts[0]);
+                setVal('temp-max', parts[1]);
+            } else {
+                // Fallback if old data or different format
+                setVal('temp-min', rawTemp);
+            }
+
             setVal('aqi', data.environment.air_quality_index);
             setVal('humidity', data.environment.humidity_percent);
             setVal('uv-index', data.environment.uv_index);
-            document.getElementById('uv-val').innerText = data.environment.uv_index || 0;
+
+            // Trigger visual updates for sliders
+            document.getElementById('aqi')?.dispatchEvent(new Event('input'));
+            document.getElementById('uv-index')?.dispatchEvent(new Event('input'));
+            if (document.getElementById('humidity-value')) document.getElementById('humidity-value').innerText = data.environment.humidity_percent || 50;
+
             setVal('env-experience', data.environment.environment_experience);
         }
 

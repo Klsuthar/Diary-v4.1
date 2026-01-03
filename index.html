@@ -68,61 +68,124 @@
 
             <!-- 1. Basic Tab -->
             <section id="tab-basic" class="tab-content active">
-                <div class="card basic-card">
-                    <h3><i class="fas fa-home"></i> Environment & Date</h3>
-                    <div class="stat-row mb-3">
-                        <div class="stat-item">
-                            <span class="stat-label">Day #</span>
-                            <span class="stat-value" id="day-counter">--</span>
+
+                <!-- Date Section -->
+                <div class="card date-card">
+                    <div class="date-navigation">
+                        <button class="nav-btn" id="prev-date">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="date-display" id="date-btn">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span id="display-date-full">Monday, January 15, 2024</span>
                         </div>
-                        <button id="import-last-env" class="text-btn">Import Last Day</button>
+                        <button class="nav-btn" id="next-date">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
                     </div>
-
-                    <div class="form-group">
-                        <label>Weather Condition</label>
-                        <select id="weather-condition">
-                            <option value="">Select...</option>
-                            <option value="Sunny">Sunny ☀️</option>
-                            <option value="Cloudy">Cloudy ☁️</option>
-                            <option value="Rainy">Rainy 🌧️</option>
-                            <option value="Stormy">Stormy ⛈️</option>
-                            <option value="Snowy">Snowy ❄️</option>
-                            <option value="Windy">Windy 💨</option>
-                            <option value="Foggy">Foggy 🌫️</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Temperature (°C)</label>
-                        <input type="text" id="temperature" placeholder="e.g. 20-30">
-                    </div>
-
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label>AQI (0-300)</label>
-                            <input type="number" id="aqi" min="0" max="300">
-                        </div>
-                        <div class="form-group">
-                            <label>Humidity (%)</label>
-                            <input type="number" id="humidity" min="0" max="100">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="flex-between"><label>UV Index</label><span id="uv-val">0</span></div>
-                        <input type="range" id="uv-index" min="0" max="12" step="1" value="0">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Environment Experience</label>
-                        <input type="text" id="env-experience" list="env-suggestions">
-                        <datalist id="env-suggestions">
-                            <option value="Pleasant weather">
-                            <option value="Hot and humid">
-                            <option value="Cold and breezy">
-                        </datalist>
+                    <div class="day-counter">
+                        Day <span id="day-counter">--</span> since July 4, 2003
                     </div>
                 </div>
+
+                <!-- Temperature Section -->
+                <div class="card">
+                    <label class="field-label">
+                        <i class="fas fa-temperature-high"></i> Temperature
+                    </label>
+                    <div class="temp-range">
+                        <div class="temp-input">
+                            <label>Min</label>
+                            <input type="number" id="temp-min" placeholder="Min" min="-10" max="60">
+                            <span>°C</span>
+                        </div>
+                        <div class="temp-input">
+                            <label>Max</label>
+                            <input type="number" id="temp-max" placeholder="Max" min="-10" max="60">
+                            <span>°C</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weather Condition -->
+                <div class="card">
+                    <label class="field-label">
+                        <i class="fas fa-cloud-sun"></i> Weather Condition
+                    </label>
+                    <select id="weather-condition" class="select-input">
+                        <option value="">Select weather</option>
+                        <option value="Sunny">☀️ Sunny</option>
+                        <option value="Cloudy">☁️ Cloudy</option>
+                        <option value="Rainy">🌧️ Rainy</option>
+                        <option value="Stormy">⛈️ Stormy</option>
+                        <option value="Snowy">❄️ Snowy</option>
+                        <option value="Windy">💨 Windy</option>
+                        <option value="Foggy">🌫️ Foggy</option>
+                    </select>
+                </div>
+
+                <!-- Air Quality Index -->
+                <div class="card">
+                    <label class="field-label">
+                        <i class="fas fa-wind"></i> Air Quality Index (AQI)
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="aqi" min="0" max="300" value="50" class="slider">
+                        <div class="slider-value">
+                            <span id="aqi-value">50</span>
+                            <span id="aqi-label" class="aqi-good">Good</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Humidity -->
+                <div class="card">
+                    <label class="field-label">
+                        <i class="fas fa-tint"></i> Humidity
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="humidity" min="0" max="100" value="50" class="slider">
+                        <div class="slider-value">
+                            <span id="humidity-value">50</span>%
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UV Index -->
+                <div class="card">
+                    <label class="field-label">
+                        <i class="fas fa-sun"></i> UV Index
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" id="uv-index" min="0" max="12" value="0" class="slider uv-slider">
+                        <div class="slider-value">
+                            <span id="uv-value">0</span>
+                            <span id="uv-label" class="uv-low">Low</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Environment Experience -->
+                <div class="card">
+                    <label class="field-label">
+                        <i class="fas fa-leaf"></i> Environment Experience
+                    </label>
+                    <textarea id="env-experience" rows="3"
+                        placeholder="Describe your environment experience..."></textarea>
+                    <div class="suggestions" id="env-suggestions">
+                        <span class="suggestion-chip">Pleasant weather</span>
+                        <span class="suggestion-chip">Hot and humid</span>
+                        <span class="suggestion-chip">Cool breeze</span>
+                        <span class="suggestion-chip">Comfortable</span>
+                        <span class="suggestion-chip">Heavy Rain</span>
+                    </div>
+                </div>
+
+                <!-- Import Button -->
+                <button class="import-btn" id="import-last-env">
+                    <i class="fas fa-copy"></i> Import from Last Day
+                </button>
+
             </section>
 
             <!-- 2. Body Tab -->
