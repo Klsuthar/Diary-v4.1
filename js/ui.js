@@ -288,6 +288,48 @@ class UI {
         setupChips('meds-suggestions', 'medications');
         setupChips('symptoms-suggestions', 'symptoms');
 
+        // ---------------- BASIC TAB LISTENERS ----------------
+        // AQI Slider
+        const aqiSlider = document.getElementById('aqi');
+        const aqiLabel = document.getElementById('aqi-label');
+        if (aqiSlider && aqiLabel) {
+            aqiSlider.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value);
+                document.getElementById('aqi-value').innerText = val;
+                this.updateAQILabel(val, aqiLabel);
+            });
+            // Init state
+            this.updateAQILabel(parseInt(aqiSlider.value), aqiLabel);
+        }
+
+        // UV Slider
+        const uvSlider = document.getElementById('uv-index');
+        const uvLabel = document.getElementById('uv-label');
+        if (uvSlider && uvLabel) {
+            uvSlider.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value);
+                document.getElementById('uv-value').innerText = val;
+                this.updateUVLabel(val, uvLabel);
+            });
+            // Init state
+            this.updateUVLabel(parseInt(uvSlider.value), uvLabel);
+        }
+
+        // Environment Suggestions
+        const envSuggestions = document.getElementById('env-suggestions');
+        if (envSuggestions) {
+            envSuggestions.querySelectorAll('.suggestion-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    this.appendReason('env-experience', chip.innerText);
+                });
+            });
+        }
+
+        // Import Basic Data
+        const importBasicBtn = document.getElementById('import-last-env');
+        if (importBasicBtn) {
+            importBasicBtn.addEventListener('click', () => this.importLastDayData('environment'));
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -317,12 +359,65 @@ class UI {
         return '😢';
     }
 
-    appendReason(type, text) {
-        const area = document.getElementById(`${type}-reason`);
-        if (!area) return;
-        const current = area.value;
-        area.value = current ? `${current}, ${text}` : text;
-        area.dispatchEvent(new Event('input'));
+    appendReason(id, text) {
+        // Handle both ID styles (e.g., 'energy' -> 'energy-reason' OR direct ID)
+        let field = document.getElementById(id);
+        if (!field) field = document.getElementById(`${id}-reason`);
+        if (!field) return;
+
+        const current = field.value;
+        if (current) {
+            if (!current.includes(text)) {
+                field.value = current + ", " + text;
+            }
+        } else {
+            field.value = text;
+        }
+        field.dispatchEvent(new Event('input'));
+    }
+
+    // Basic Tab Helpers
+    updateAQILabel(value, label) {
+        label.className = '';
+        if (value <= 50) {
+            label.innerText = 'Good';
+            label.classList.add('aqi-good');
+        } else if (value <= 100) {
+            label.innerText = 'Moderate';
+            label.classList.add('aqi-moderate');
+        } else if (value <= 150) {
+            label.innerText = 'Unhealthy for Sensitive';
+            label.classList.add('aqi-unhealthy-sensitive');
+        } else if (value <= 200) {
+            label.innerText = 'Unhealthy';
+            label.classList.add('aqi-unhealthy');
+        } else if (value <= 300) {
+            label.innerText = 'Very Unhealthy';
+            label.classList.add('aqi-very-unhealthy');
+        } else {
+            label.innerText = 'Hazardous';
+            label.classList.add('aqi-hazardous');
+        }
+    }
+
+    updateUVLabel(value, label) {
+        label.className = '';
+        if (value <= 2) {
+            label.innerText = 'Low';
+            label.classList.add('uv-low');
+        } else if (value <= 5) {
+            label.innerText = 'Moderate';
+            label.classList.add('uv-moderate');
+        } else if (value <= 7) {
+            label.innerText = 'High';
+            label.classList.add('uv-high');
+        } else if (value <= 10) {
+            label.innerText = 'Very High';
+            label.classList.add('uv-very-high');
+        } else {
+            label.innerText = 'Extreme';
+            label.classList.add('uv-extreme');
+        }
     }
 
     switchTab(tabId) {
@@ -979,13 +1074,30 @@ class UI {
 
         if (section === 'environment') {
             if (prevData.environment) {
-                const cur = this.storage.getEntry(this.currentDate) || {};
-                cur.environment = prevData.environment;
-                // But wait, we need to populate UI
+                // Populate Fields
                 document.getElementById('weather-condition').value = prevData.environment.weather_condition || "";
-                document.getElementById('temperature').value = prevData.environment.temperature_c || "";
-                document.getElementById('aqi').value = prevData.environment.air_quality_index || "";
-                document.getElementById('humidity').value = prevData.environment.humidity_percent || "";
+
+                // Handle Temp Range (stored as "18-32" or single value)
+                const temp = prevData.environment.temperature_c || "";
+                if (temp.includes('-')) {
+                    const parts = temp.split('-');
+                    document.getElementById('temp-min').value = parts[0];
+                    document.getElementById('temp-max').value = parts[1];
+                } else {
+                    document.getElementById('temp-min').value = temp;
+                }
+
+                document.getElementById('aqi').value = prevData.environment.air_quality_index || 50;
+                document.getElementById('humidity').value = prevData.environment.humidity_percent || 50;
+                document.getElementById('uv-index').value = prevData.environment.uv_index || 0;
+                document.getElementById('env-experience').value = prevData.environment.environment_experience || "";
+
+                // Trigger updates for sliders
+                document.getElementById('aqi').dispatchEvent(new Event('input'));
+                document.getElementById('uv-index').dispatchEvent(new Event('input'));
+                document.getElementById('humidity').dispatchEvent(new Event('input'));
+
+                this.showToast('Basic data imported from previous day');
             }
         } else if (section === 'personal_care') {
             if (prevData.personal_care) {
@@ -995,6 +1107,7 @@ class UI {
                 document.getElementById('hair-brand').value = prevData.personal_care.hair_product_brand || "";
                 document.getElementById('hair-oil').value = prevData.personal_care.hair_oil || "";
                 document.getElementById('skincare-routine').value = prevData.personal_care.skincare_routine || "";
+                this.showToast('Personal Care data imported');
             }
         }
     }
