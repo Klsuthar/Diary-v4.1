@@ -1,6 +1,7 @@
 {
     "name": "My Personal Diary",
     "short_name": "Diary",
+    "version": "4.0",
     "description": "Track your daily life, health, mood, and activities",
     "start_url": "./index.html",
     "display": "standalone",
