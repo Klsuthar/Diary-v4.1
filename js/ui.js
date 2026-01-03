@@ -87,8 +87,10 @@ class UI {
             }, 200);
         };
 
-        document.getElementById('prev-date').addEventListener('click', () => updateDateUI(-1));
-        document.getElementById('next-date').addEventListener('click', () => updateDateUI(1));
+        const prevBtn = document.getElementById('prev-date');
+        const nextBtn = document.getElementById('next-date');
+        document.querySelectorAll('#prev-date').forEach(btn => btn.addEventListener('click', () => updateDateUI(-1)));
+        document.querySelectorAll('#next-date').forEach(btn => btn.addEventListener('click', () => updateDateUI(1)));
 
         this.dateBtn.addEventListener('click', () => {
             this.hiddenDateInput.showPicker();
@@ -98,269 +100,154 @@ class UI {
             if (e.target.value) this.setDate(e.target.value);
         });
 
-        // Inputs Auto-save (Debounced? Or just save button? Prompt says "Auto-save on date change" and "Manual Save Button")
-        // We'll stick to Manual Save + Auto on Date Change as requested behavior.
-
-        // Sliders Feedback
-        document.querySelectorAll('input[type="range"]').forEach(slider => {
-            // Find sibling or parent's span to update value
-            slider.addEventListener('input', (e) => {
-                const valSpan = e.target.parentElement.querySelector('span') || document.getElementById(e.target.id.replace('level', 'val').replace('index', 'val').replace('quality', 'qual-val'));
-                if (valSpan) valSpan.innerText = e.target.value;
-            });
-        });
-
-        // Mood Category Change
-        // Mood Category Change (Dynamic Feelings for Timeline)
-        document.querySelectorAll('.mood-cat').forEach(select => {
-            select.addEventListener('change', (e) => {
-                const periodCard = e.target.closest('.period-card');
-                const feelSelect = periodCard.querySelector('.mood-feel');
-
-                // Animate border change
-                periodCard.style.borderColor = '#667eea';
-                setTimeout(() => periodCard.style.borderColor = 'transparent', 500);
-
-                this.updateMoodFeelings(e.target.value, feelSelect);
-
-                // Focus feelings
-                feelSelect.focus();
-            });
-        });
-
-        // Toggle Meditation Duration
-        const medStatus = document.getElementById('meditation-status');
-        if (medStatus) {
-            medStatus.addEventListener('change', (e) => {
-                const group = document.getElementById('meditation-duration-group');
-                if (e.target.value === 'Yes') {
-                    group.classList.remove('hidden');
-                    // small delay to allow display:block to apply before animation
-                    requestAnimationFrame(() => group.classList.add('slide-in-active'));
-                } else {
-                    group.classList.add('hidden');
-                    document.getElementById('meditation-duration').value = "";
-                }
-            });
-        }
-
-        // Textarea Counters (Real-time)
-        document.querySelectorAll('textarea').forEach(area => {
-            const countId = area.id + '-count';
-            const counter = document.getElementById(countId);
-            if (counter) {
-                const updateCounter = () => {
-                    const len = area.value.length;
-                    const limit = parseInt(counter.innerText.split('/')[1]) || 200;
-                    counter.innerText = `(${len}/${limit})`;
-                    if (len >= limit) counter.classList.add('limit-reached');
-                    else counter.classList.remove('limit-reached');
-                };
-                area.addEventListener('input', () => {
-                    updateCounter();
-                    this.debouncedSave();
-                });
-                // Initial check
-                updateCounter();
-            }
-        });
-
-        // Global Auto-Save for all Inputs
-        document.querySelectorAll('input, textarea, select').forEach(el => {
-            if (el.type !== 'range') { // Sliders handled separately
-                el.addEventListener('input', this.debouncedSave);
-            }
-        });
-
-        // Header Actions
+        // Toolbar
         document.getElementById('save-btn').addEventListener('click', () => this.saveEntry(true));
-        document.getElementById('export-btn').addEventListener('click', () => this.exportCurrentEntry());
+        document.getElementById('export-btn').addEventListener('click', () => this.exportEntry());
 
-        // Menu Actions
-        document.getElementById('menu-btn').addEventListener('click', (e) => {
+        // Menu
+        const menuBtn = document.getElementById('menu-btn');
+        const menuContent = document.getElementById('main-menu');
+        menuBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            document.getElementById('main-menu').classList.toggle('show');
+            menuContent.classList.toggle('show');
         });
-        document.addEventListener('click', () => document.getElementById('main-menu').classList.remove('show'));
+        document.addEventListener('click', () => menuContent.classList.remove('show'));
 
+        document.getElementById('menu-clear').addEventListener('click', () => {
+            if (confirm('Clear current entry?')) {
+                this.resetForm();
+                this.saveEntry();
+            }
+        });
         document.getElementById('menu-share').addEventListener('click', () => this.shareEntry());
         document.getElementById('menu-import').addEventListener('click', () => document.getElementById('import-file').click());
-        document.getElementById('menu-clear').addEventListener('click', () => this.clearForm());
-        document.getElementById('menu-backup').addEventListener('click', () => this.createBackup());
+        document.getElementById('import-file').addEventListener('change', (e) => this.importJSON(e));
+
+        document.getElementById('menu-backup').addEventListener('click', () => this.backupData());
         document.getElementById('menu-restore').addEventListener('click', () => document.getElementById('import-backup-file').click());
-        document.getElementById('menu-refresh').addEventListener('click', () => window.location.reload(true));
+        document.getElementById('import-backup-file').addEventListener('change', (e) => this.restoreBackup(e));
+        document.getElementById('menu-refresh').addEventListener('click', () => location.reload());
 
-        // File Inputs
-        document.getElementById('import-file').addEventListener('change', (e) => this.handleFileImport(e, false));
-        document.getElementById('import-backup-file').addEventListener('change', (e) => this.handleFileImport(e, true));
+        // Multi-select
+        this.initMultiSelectListeners();
+        this.initSearchListeners();
 
-        // Multi-select Actions
-        document.getElementById('multi-cancel-btn').addEventListener('click', () => this.exitMultiSelect());
-        document.getElementById('multi-export-btn').addEventListener('click', () => this.exportSelected());
-        document.getElementById('multi-delete-btn').addEventListener('click', () => this.deleteSelected());
 
-        // Search & Filter Listeners
-        const searchInput = document.getElementById('history-search');
-        const searchClear = document.getElementById('search-clear');
+        // ---------------- REAL-TIME & SLIDERS ----------------
 
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                const val = e.target.value;
-                searchClear.classList.toggle('hidden', !val);
-                this.renderHistory(val, this.currentFilter || 'all');
-            });
-            searchClear.addEventListener('click', () => {
-                searchInput.value = '';
-                searchClear.classList.add('hidden');
-                this.renderHistory('', this.currentFilter || 'all');
+        // AQI
+        const aqiSlider = document.getElementById('aqi');
+        const aqiLabel = document.getElementById('aqi-label');
+        if (aqiSlider && aqiLabel) {
+            const update = () => {
+                const val = parseInt(aqiSlider.value);
+                document.getElementById('aqi-value').innerText = val;
+                this.updateAQILabel(val, aqiLabel);
+                this.debouncedSave();
+            }
+            aqiSlider.addEventListener('input', update);
+        }
+
+        // UV
+        const uvSlider = document.getElementById('uv-index');
+        const uvLabel = document.getElementById('uv-label');
+        if (uvSlider && uvLabel) {
+            const update = () => {
+                const val = parseInt(uvSlider.value);
+                document.getElementById('uv-value').innerText = val;
+                this.updateUVLabel(val, uvLabel);
+                this.debouncedSave();
+            }
+            uvSlider.addEventListener('input', update);
+        }
+
+        // Sleep Quality
+        const sleepSlider = document.getElementById('sleep-quality');
+        const sleepLabel = document.getElementById('sleep-qual-label');
+        if (sleepSlider && sleepLabel) {
+            sleepSlider.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value);
+                document.getElementById('sleep-qual-val').innerText = val;
+
+                let text = 'Average 😐';
+                if (val >= 9) text = 'Excellent 🌟';
+                else if (val >= 7) text = 'Good 😊';
+                else if (val <= 2) text = 'Terrible 😢';
+                else if (val <= 4) text = 'Poor 😔';
+
+                sleepLabel.innerText = text;
+                this.debouncedSave();
             });
         }
 
-        // Filter Chips
-        document.querySelectorAll('.filter-chip').forEach(btn => {
-            btn.addEventListener('click', () => {
-                // UI toggle
-                document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-
-                this.currentFilter = btn.dataset.filter;
-                this.renderHistory(searchInput.value, this.currentFilter);
+        // Generic Slider Value Update
+        document.querySelectorAll('input[type="range"]').forEach(slider => {
+            slider.addEventListener('input', (e) => {
+                const container = slider.parentElement;
+                const valSpan = container.querySelector('.slider-value span:first-child') || container.querySelector('.mood-val-display');
+                if (valSpan) {
+                    if (slider.classList.contains('mood-slider')) {
+                        const emoji = this.getMoodEmoji(slider.value);
+                        document.getElementById(slider.id.replace('slider', 'val')).innerText = `${slider.value} ${emoji}`;
+                    } else {
+                        valSpan.innerText = slider.value;
+                    }
+                }
+                this.debouncedSave();
             });
         });
 
-        // Import Last Day Buttons (Animated)
-        const animateImport = async (btnId, section) => {
-            const btn = document.getElementById(btnId);
-            if (!btn) return;
-
-            btn.disabled = true;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<span class="spinner"></span> Importing...';
-
-            await new Promise(r => setTimeout(r, 500)); // Fake delay for feel
-            this.importLastDayData(section);
-
-            btn.innerHTML = '<i class="fas fa-check"></i> Done';
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }, 1500);
-        };
-
-        document.getElementById('import-last-env').addEventListener('click', () => animateImport('import-last-env', 'environment'));
-        document.getElementById('import-last-care').addEventListener('click', () => animateImport('import-last-care', 'personal_care'));
-
-        // --- NEW BASIC TAB LOGIC ---
-
-        // Suggestion Chips
-        document.querySelectorAll('.suggestion-chip').forEach(chip => {
-            chip.addEventListener('click', () => {
-                const area = document.getElementById('env-experience');
-                const current = area.value;
-                area.value = current ? `${current}, ${chip.innerText}` : chip.innerText;
-            });
-        });
-
-        // Color-Coded Sliders
-        const linkSliderToLabel = (sliderId, labelId, valueId, getLabelClass) => {
-            const slider = document.getElementById(sliderId);
-            const label = document.getElementById(labelId);
-            const valDisplay = document.getElementById(valueId);
-            if (!slider || !label) return;
-
-            const update = () => {
-                const val = parseInt(slider.value);
-                if (valDisplay) valDisplay.innerText = val;
-
-                // Remove old classes
-                label.className = '';
-                // Get new class and text
-                const res = getLabelClass(val);
-                label.innerText = res.text;
-                label.classList.add(res.cls);
-                // Re-add id if needed or just rely on parent select
-                label.id = labelId;
-            };
-
-            slider.addEventListener('input', update);
-            // Initial call relies on loadEntry setting value first
-        };
-
-        linkSliderToLabel('aqi', 'aqi-label', 'aqi-value', (val) => {
-            if (val <= 50) return { text: 'Good', cls: 'aqi-good' };
-            if (val <= 100) return { text: 'Moderate', cls: 'aqi-moderate' };
-            if (val <= 150) return { text: 'Unhealthy (Sens.)', cls: 'aqi-unhealthy-sensitive' };
-            if (val <= 200) return { text: 'Unhealthy', cls: 'aqi-unhealthy' };
-            if (val <= 300) return { text: 'Very Unhealthy', cls: 'aqi-very-unhealthy' };
-            return { text: 'Hazardous', cls: 'aqi-hazardous' };
-        });
-
-        linkSliderToLabel('uv-index', 'uv-label', 'uv-value', (val) => {
-            if (val <= 2) return { text: 'Low', cls: 'uv-low' };
-            if (val <= 5) return { text: 'Moderate', cls: 'uv-moderate' };
-            if (val <= 7) return { text: 'High', cls: 'uv-high' };
-            if (val <= 10) return { text: 'Very High', cls: 'uv-very-high' };
-            return { text: 'Extreme', cls: 'uv-extreme' };
-        });
-
-        // --- NEW BODY TAB LOGIC ---
-
-        // Sleep Quality Slider
-        linkSliderToLabel('sleep-quality', 'sleep-qual-label', 'sleep-qual-val', (val) => {
-            if (val <= 3) return { text: 'Poor 😴', cls: 'qual-poor' };
-            if (val <= 6) return { text: 'Average 😐', cls: 'qual-avg' };
-            if (val <= 8) return { text: 'Good 😊', cls: 'qual-good' };
-            return { text: 'Excellent 🌟', cls: 'qual-excellent' };
-        });
-
-        // BMI Calculation (Real-time)
+        // ------------------ BODY TAB ------------------
         const updateBMI = () => {
             const w = parseFloat(document.getElementById('weight').value);
             const h = parseFloat(document.getElementById('height').value);
-            const bmiDisplay = document.getElementById('bmi-display') || createBMIElement();
 
-            if (w && h) {
+            let bmiDisplay = document.getElementById('bmi-display');
+            if (!bmiDisplay) {
+                const container = document.getElementById('weight').closest('.card') || document.getElementById('weight').parentElement.parentElement.parentElement;
+                if (container) {
+                    bmiDisplay = document.createElement('div');
+                    bmiDisplay.id = 'bmi-display';
+                    bmiDisplay.style.marginTop = '15px';
+                    bmiDisplay.style.textAlign = 'center';
+                    bmiDisplay.style.padding = '10px';
+                    bmiDisplay.style.background = 'rgba(255,255,255,0.05)';
+                    bmiDisplay.style.borderRadius = '8px';
+                    bmiDisplay.style.transition = 'opacity 0.3s';
+                    container.appendChild(bmiDisplay);
+                }
+            }
+
+            if (bmiDisplay && w > 0 && h > 0) {
                 const bmi = (w / ((h / 100) ** 2)).toFixed(1);
-                let cls = 'bmi-normal';
-                let text = 'Normal';
+                let cls = 'bmi-normal', text = 'Normal';
                 if (bmi < 18.5) { cls = 'bmi-underweight'; text = 'Underweight'; }
                 else if (bmi >= 25 && bmi < 30) { cls = 'bmi-overweight'; text = 'Overweight'; }
                 else if (bmi >= 30) { cls = 'bmi-obese'; text = 'Obese'; }
 
-                bmiDisplay.innerHTML = `BMI: ${bmi} (<span class="${cls}">${text}</span>)`;
+                bmiDisplay.innerHTML = `<span style="font-size:1.2em; font-weight:bold;">BMI: ${bmi}</span> <br> <span class="${cls}">${text}</span>`;
                 bmiDisplay.style.opacity = '1';
-            } else {
+            } else if (bmiDisplay) {
                 bmiDisplay.style.opacity = '0';
             }
         };
 
-        const createBMIElement = () => {
-            const container = document.getElementById('weight').closest('.card');
-            const div = document.createElement('div');
-            div.id = 'bmi-display';
-            div.style.marginTop = '10px';
-            div.style.textAlign = 'center';
-            div.style.transition = 'opacity 0.3s';
-            container.appendChild(div);
-            return div;
-        };
+        const wInput = document.getElementById('weight');
+        const hInput = document.getElementById('height');
+        if (wInput) wInput.addEventListener('input', () => { updateBMI(); this.debouncedSave(); });
+        if (hInput) hInput.addEventListener('input', () => { updateBMI(); this.debouncedSave(); });
 
-        document.getElementById('weight').addEventListener('input', updateBMI);
-        document.getElementById('height').addEventListener('input', updateBMI);
-
-
-        // Hydration Logic (Enhanced)
+        // Hydration Scale Animation
         const updateGlasses = () => {
             const val = parseFloat(document.getElementById('water-intake').value) || 0;
             const glassCount = Math.min(8, Math.floor(val / 0.25));
             const glasses = document.querySelectorAll('.glass-indicators i');
             glasses.forEach((glass, idx) => {
-                glass.style.transition = 'color 0.3s, transform 0.3s';
+                glass.style.transition = 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
                 if (idx < glassCount) {
                     glass.className = 'fas fa-glass-water filled';
                     glass.style.color = '#3498db';
                     glass.style.transform = 'scale(1.2)';
-                    setTimeout(() => glass.style.transform = 'scale(1)', 200);
                 } else {
                     glass.className = 'far fa-circle';
                     glass.style.color = '#ccc';
@@ -368,198 +255,159 @@ class UI {
                 }
             });
         };
-
-        document.getElementById('water-intake').addEventListener('input', updateGlasses);
+        const waterInput = document.getElementById('water-intake');
+        if (waterInput) waterInput.addEventListener('input', () => { updateGlasses(); this.debouncedSave(); });
 
         document.querySelectorAll('.quick-add-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const add = parseFloat(btn.dataset.add);
+            btn.addEventListener('click', (e) => {
+                const add = parseFloat(e.target.dataset.add);
                 const input = document.getElementById('water-intake');
-                let current = parseFloat(input.value) || 0;
-                input.value = (current + add).toFixed(2);
-                updateGlasses();
+                if (input) {
+                    input.value = (parseFloat(input.value || 0) + add).toFixed(2);
+                    input.dispatchEvent(new Event('input'));
 
-                // Add simple animation effect
-                btn.style.transform = "scale(0.9)";
-                setTimeout(() => btn.style.transform = "scale(1)", 100);
+                    // Button Pulse
+                    const originalScale = e.target.style.transform;
+                    e.target.style.transform = 'scale(0.95)';
+                    setTimeout(() => e.target.style.transform = originalScale || '', 100);
+                }
             });
         });
 
-        // Medical/Symptoms Chips
-        const setupChips = (containerId, inputId) => {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            container.querySelectorAll('.suggestion-chip').forEach(chip => {
-                chip.addEventListener('click', () => {
-                    const input = document.getElementById(inputId);
-                    const val = input.value;
-                    input.value = val ? `${val}, ${chip.innerText}` : chip.innerText;
-                });
+        // ------------------ MENTAL TAB ------------------
+        document.querySelectorAll('.mood-cat').forEach(select => {
+            select.addEventListener('change', (e) => {
+                const periodCard = e.target.closest('.period-card');
+                const feelSelect = periodCard.querySelector('.mood-feel');
+
+                // Border Flash
+                periodCard.style.transition = 'border-color 0.5s';
+                periodCard.style.borderColor = '#667eea';
+                setTimeout(() => periodCard.style.borderColor = 'transparent', 500);
+
+                this.updateMoodFeelings(e.target.value, feelSelect);
+                this.debouncedSave();
             });
+        });
+
+        // ------------------ SUMMARY TAB ------------------
+        // Import Buttons
+        const animateImport = async (btnId, section) => {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            btn.disabled = true;
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner"></span> Importing...';
+            await new Promise(r => setTimeout(r, 600));
+            this.importLastDayData(section);
+            btn.innerHTML = '<i class="fas fa-check"></i> Done';
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }, 1500);
         };
-        setupChips('meds-suggestions', 'medications');
-        setupChips('symptoms-suggestions', 'symptoms');
+        document.getElementById('import-last-env')?.addEventListener('click', () => animateImport('import-last-env', 'environment'));
+        document.getElementById('import-last-care')?.addEventListener('click', () => animateImport('import-last-care', 'personal_care'));
 
-        // ---------------- BASIC TAB LISTENERS ----------------
-        // AQI Slider
-        const aqiSlider = document.getElementById('aqi');
-        const aqiLabel = document.getElementById('aqi-label');
-        if (aqiSlider && aqiLabel) {
-            aqiSlider.addEventListener('input', (e) => {
-                const val = parseInt(e.target.value);
-                document.getElementById('aqi-value').innerText = val;
-                this.updateAQILabel(val, aqiLabel);
-            });
-            // Init state
-            this.updateAQILabel(parseInt(aqiSlider.value), aqiLabel);
-        }
-
-        // UV Slider
-        const uvSlider = document.getElementById('uv-index');
-        const uvLabel = document.getElementById('uv-label');
-        if (uvSlider && uvLabel) {
-            uvSlider.addEventListener('input', (e) => {
-                const val = parseInt(e.target.value);
-                document.getElementById('uv-value').innerText = val;
-                this.updateUVLabel(val, uvLabel);
-            });
-            // Init state
-            this.updateUVLabel(parseInt(uvSlider.value), uvLabel);
-        }
-
-        // Environment Suggestions
-        const envSuggestions = document.getElementById('env-suggestions');
-        if (envSuggestions) {
-            envSuggestions.querySelectorAll('.suggestion-chip').forEach(chip => {
-                chip.addEventListener('click', () => {
-                    this.appendReason('env-experience', chip.innerText);
-                });
-            });
-        }
-
-        // Import Basic Data
-        const importBasicBtn = document.getElementById('import-last-env');
-        if (importBasicBtn) {
-            importBasicBtn.addEventListener('click', () => this.importLastDayData('environment'));
-        }
-
-        // Top 5 Apps Validation
-        const validateAppRates = () => {
-            const screenTimeStr = document.getElementById('screen-time')?.value || '';
-            // Try to parse hours/mins/decimal
-            let totalScreenMinutes = 0;
-            if (screenTimeStr.toLowerCase().includes('h')) {
-                // Simple parsing "5h 30m" or "5h"
-                const parts = screenTimeStr.match(/(\d+(?:\.\d+)?)\s*h/);
-                if (parts) totalScreenMinutes += parseFloat(parts[1]) * 60;
-                const mParts = screenTimeStr.match(/(\d+)\s*m/);
-                if (mParts) totalScreenMinutes += parseFloat(mParts[1]);
-            } else {
-                // Assume number is hours if just digits
-                const val = parseFloat(screenTimeStr);
-                if (!isNaN(val)) totalScreenMinutes = val * 60;
-            }
-
-            if (totalScreenMinutes <= 0) return; // Can't validate
-
-            let totalAppMinutes = 0;
-            const appInputs = document.querySelectorAll('.app-time');
-            appInputs.forEach(input => {
-                const val = input.value.toLowerCase();
-                let mins = 0;
-                if (val.includes('h')) {
-                    const parts = val.match(/(\d+(?:\.\d+)?)\s*h/);
-                    if (parts) mins += parseFloat(parts[1]) * 60;
-                    const mParts = val.match(/(\d+)\s*m/);
-                    if (mParts) mins += parseFloat(mParts[1]);
-                } else if (val.includes('m')) {
-                    const mParts = val.match(/(\d+)\s*m/);
-                    if (mParts) mins += parseFloat(mParts[1]);
-                } else {
-                    // fallback assuming minutes for app time if just number
-                    const v = parseFloat(val);
-                    if (!isNaN(v)) mins = v;
-                }
-                totalAppMinutes += mins;
-            });
-
-            const screenInput = document.getElementById('screen-time');
-            if (totalAppMinutes > totalScreenMinutes) {
-                screenInput.classList.add('input-warning');
-                // Maybe toast warning?
-            } else {
-                screenInput.classList.remove('input-warning');
-            }
-        };
-
-        const appTimeInputs = document.querySelectorAll('.app-time');
-        appTimeInputs.forEach(input => input.addEventListener('input', validateAppRates));
-        document.getElementById('screen-time')?.addEventListener('input', validateAppRates);
-
-        // ---------------- SUMMARY TAB LISTENERS ----------------
-        // Suggestion Chips (Real-time Autocomplete)
+        // Suggestions Autocomplete
         document.querySelectorAll('.suggestion-chips-container').forEach(container => {
             const inputId = container.dataset.input;
             if (!inputId) return;
             const input = document.getElementById(inputId);
             if (!input) return;
 
-            // Click Handler
+            // Chip Click
             container.querySelectorAll('.chip').forEach(chip => {
                 chip.addEventListener('click', () => {
-                    const isMulti = input.tagName === 'TEXTAREA' || ['breakfast', 'lunch', 'dinner', 'snacks', 'app-usage-intent'].includes(inputId);
-                    const current = input.value;
-                    if (isMulti && current) {
-                        if (!current.includes(chip.innerText)) input.value = current + ", " + chip.innerText;
-                    } else {
-                        input.value = chip.innerText;
-                    }
+                    this.appendReason(inputId, chip.innerText); // Reusing appendReason logic is safer
                     input.dispatchEvent(new Event('input'));
-                    // Reset filter after selection
-                    container.querySelectorAll('.chip').forEach(c => c.style.display = '');
+                    container.querySelectorAll('.chip').forEach(c => c.style.display = ''); // Reset check
                 });
             });
 
-            // Filter on Type
-            input.addEventListener('input', (e) => {
-                const val = e.target.value.toLowerCase();
-                // Get last segment if comma separated
-                const lastSegment = val.split(',').pop().trim();
+            // Input Filter
+            input.addEventListener('input', () => {
+                const val = input.value.toLowerCase();
+                const terms = val.split(',').map(s => s.trim());
+                const currentTerm = terms[terms.length - 1];
 
                 container.querySelectorAll('.chip').forEach(chip => {
-                    const text = chip.innerText.toLowerCase();
-                    if (text.includes(lastSegment)) {
+                    if (!currentTerm) {
                         chip.style.display = '';
-                        // Highlight logic could go here
-                        chip.classList.add('highlight'); // Simple highlight class
+                        chip.classList.remove('highlight');
+                    } else if (chip.innerText.toLowerCase().includes(currentTerm)) {
+                        chip.style.display = '';
+                        chip.classList.add('highlight');
                     } else {
                         chip.style.display = 'none';
                         chip.classList.remove('highlight');
                     }
                 });
-                // If input empty, show all
-                if (!lastSegment) container.querySelectorAll('.chip').forEach(c => c.style.display = '');
             });
         });
 
-        // Import Personal Care
-        const importCareBtn = document.getElementById('import-last-care');
-        if (importCareBtn) {
-            importCareBtn.addEventListener('click', () => this.importLastDayData('personal_care'));
-        }
+        // Top 5 Apps Validation
+        const validateApps = () => {
+            const screenInput = document.getElementById('screen-time');
+            if (!screenInput) return;
 
-        // Character Counters
-        document.querySelectorAll('.char-counter').forEach(counter => {
-            const inputId = counter.id.replace('-count', '');
-            const input = document.getElementById(inputId);
-            if (input) {
-                const limit = parseInt(counter.innerText.split('/')[1]);
-                input.addEventListener('input', () => {
-                    const len = input.value.length;
+            // Parse Screen Time (HH:MM or 5h 30m)
+            let totalScreenMins = 0;
+            const sVal = screenInput.value;
+            // HH:MM format from type="time"
+            if (sVal.includes(':')) {
+                const [h, m] = sVal.split(':').map(Number);
+                totalScreenMins = (h * 60) + m;
+            }
+
+            if (totalScreenMins <= 0) {
+                screenInput.classList.remove('input-warning');
+                return;
+            }
+
+            let totalAppMins = 0;
+            document.querySelectorAll('.app-time').forEach(inp => {
+                const val = inp.value; // HH:MM
+                if (val.includes(':')) {
+                    const [h, m] = val.split(':').map(Number);
+                    totalAppMins += (h * 60) + m;
+                }
+            });
+
+            if (totalAppMins > totalScreenMins) {
+                screenInput.classList.add('input-warning');
+                screenInput.title = "Apps usage exceeds total screen time";
+            } else {
+                screenInput.classList.remove('input-warning');
+                screenInput.title = "";
+            }
+        };
+
+        document.getElementById('screen-time')?.addEventListener('input', () => { validateApps(); this.debouncedSave(); });
+        document.querySelectorAll('.app-time').forEach(el => el.addEventListener('input', () => { validateApps(); this.debouncedSave(); }));
+
+
+        // ---------------- GLOBAL ----------------
+        // Generic Auto-Save & Counters
+        document.querySelectorAll('input, textarea, select').forEach(el => {
+            if (el.type !== 'range') { // Sliders handled
+                el.addEventListener('input', this.debouncedSave);
+            }
+        });
+
+        document.querySelectorAll('textarea').forEach(area => {
+            const countId = area.id + '-count';
+            const counter = document.getElementById(countId);
+            if (counter) {
+                const limit = parseInt(counter.innerText.split('/')[1]) || 500;
+                const update = () => {
+                    const len = area.value.length;
                     counter.innerText = `(${len}/${limit})`;
-                    if (len >= limit) counter.classList.add('limit-reached');
-                    else counter.classList.remove('limit-reached');
-                });
+                    if (len >= limit) counter.style.color = 'red';
+                    else counter.style.color = '#999';
+                };
+                area.addEventListener('input', update);
+                update(); // init
             }
         });
     }
@@ -660,7 +508,7 @@ class UI {
         document.querySelector(`.nav-item[data-target="${tabId}"]`).classList.add('active');
 
         if (tabId === 'tab-history') {
-            this.renderHistory(document.getElementById('history-search')?.value || '', this.currentFilter || 'all');
+            this.renderHistory(document.getElementById('search-history')?.value || '', this.currentFilter || 'all');
         }
     }
 
@@ -693,6 +541,36 @@ class UI {
     // -------------------------------------------------------------------------
     // DATA HANDLING
     // -------------------------------------------------------------------------
+
+    initMultiSelectListeners() {
+        const cancelBtn = document.getElementById('cancel-multi');
+        const exportBtn = document.getElementById('export-multi');
+        const deleteBtn = document.getElementById('delete-multi');
+
+        if (cancelBtn) cancelBtn.addEventListener('click', () => this.exitMultiSelect());
+        if (exportBtn) exportBtn.addEventListener('click', () => this.exportSelected());
+        if (deleteBtn) deleteBtn.addEventListener('click', () => this.deleteSelected());
+    }
+
+    initSearchListeners() {
+        const searchInput = document.getElementById('search-history');
+        const searchClear = document.getElementById('search-clear');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const val = e.target.value;
+                if (searchClear) searchClear.classList.toggle('hidden', !val);
+                this.renderHistory(val, this.currentFilter || 'all');
+            });
+            if (searchClear) {
+                searchClear.addEventListener('click', () => {
+                    searchInput.value = '';
+                    searchClear.classList.add('hidden');
+                    this.renderHistory('', this.currentFilter || 'all');
+                });
+            }
+        }
+    }
 
     collectData() {
         const getVal = (id) => document.getElementById(id)?.value || "";
