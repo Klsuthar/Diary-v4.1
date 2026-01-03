@@ -330,6 +330,57 @@ class UI {
         if (importBasicBtn) {
             importBasicBtn.addEventListener('click', () => this.importLastDayData('environment'));
         }
+
+        // ---------------- SUMMARY TAB LISTENERS ----------------
+        // Suggestion Chips (Generic)
+        document.querySelectorAll('.suggestion-chips-container').forEach(container => {
+            const inputId = container.dataset.input;
+            if (!inputId) return;
+            container.querySelectorAll('.chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    // Check if input is textarea or text
+                    const input = document.getElementById(inputId);
+                    if (!input) return;
+
+                    if (input.tagName === 'TEXTAREA' || inputId === 'breakfast' || inputId === 'lunch' || inputId === 'dinner' || inputId === 'snacks' || inputId === 'app-usage-intent') {
+                        // Append with comma
+                        const current = input.value;
+                        if (current) {
+                            if (!current.includes(chip.innerText)) {
+                                input.value = current + ", " + chip.innerText;
+                            }
+                        } else {
+                            input.value = chip.innerText;
+                        }
+                    } else {
+                        // Replace for simple inputs
+                        input.value = chip.innerText;
+                    }
+                    input.dispatchEvent(new Event('input'));
+                });
+            });
+        });
+
+        // Import Personal Care
+        const importCareBtn = document.getElementById('import-last-care');
+        if (importCareBtn) {
+            importCareBtn.addEventListener('click', () => this.importLastDayData('personal_care'));
+        }
+
+        // Character Counters
+        document.querySelectorAll('.char-counter').forEach(counter => {
+            const inputId = counter.id.replace('-count', '');
+            const input = document.getElementById(inputId);
+            if (input) {
+                const limit = parseInt(counter.innerText.split('/')[1]);
+                input.addEventListener('input', () => {
+                    const len = input.value.length;
+                    counter.innerText = `(${len}/${limit})`;
+                    if (len >= limit) counter.classList.add('limit-reached');
+                    else counter.classList.remove('limit-reached');
+                });
+            }
+        });
     }
 
     // -------------------------------------------------------------------------
@@ -477,6 +528,69 @@ class UI {
             return apps;
         };
 
+        return {
+            date: this.currentDate,
+            history: {
+                mood: this.selectedMood,
+                rating: this.currentRating,
+                tags: Array.from(this.selectedTags),
+                note: getVal('history-note') // Keeping backward compatibility if needed
+            },
+            mental: {
+                morning: getMoodParams('morning'),
+                afternoon: getMoodParams('afternoon'),
+                evening: getMoodParams('evening'),
+                night: getMoodParams('night'),
+                energy_level: getNum('energy-level'),
+                energy_reason: getVal('energy-reason'),
+                stress_level: getNum('stress-level'),
+                stress_reason: getVal('stress-reason'),
+                meditation: {
+                    status: getVal('meditation-status'),
+                    duration: getNum('meditation-duration')
+                }
+            },
+            basic: {
+                temp_min: getVal('temp-min'),
+                temp_max: getVal('temp-max'),
+                weather: getVal('weather-condition'),
+                aqi: getNum('aqi'),
+                humidity: getNum('humidity'),
+                uv_index: getNum('uv-index'),
+                environment_experience: getVal('env-experience')
+            },
+            summary: {
+                personal_care: {
+                    face_name: getVal('face-name'),
+                    face_brand: getVal('face-brand'),
+                    hair_name: getVal('hair-name'),
+                    hair_brand: getVal('hair-brand'),
+                    hair_oil: getVal('hair-oil'),
+                    routine: getVal('skincare-routine')
+                },
+                diet: {
+                    breakfast: getVal('breakfast'),
+                    lunch: getVal('lunch'),
+                    dinner: getVal('dinner'),
+                    snacks: getVal('snacks')
+                },
+                activities: {
+                    tasks: getVal('tasks-completed'),
+                    travel: getVal('travel-dest'),
+                    screen_time: getVal('screen-time'),
+                    top_apps: getApps(),
+                    intent: getVal('app-usage-intent')
+                },
+                daily: {
+                    key_events: getVal('key-events'),
+                    activity_summary: getVal('daily-summary'),
+                    overall_exp: getVal('overall-exp'),
+                    other_notes: getVal('other-notes') // Assuming hidden textarea logic handled elsewhere or simple field
+                }
+            },
+            timestamp: new Date().toISOString()
+        };
+
         // Mood Timeline
         const getMoodParams = (period) => {
             const block = document.querySelector(`.period-card[data-period="${period}"]`); // Updated class from mood-block to period-card
@@ -547,37 +661,43 @@ class UI {
                 meditation_duration_min: getNum('meditation-duration')
             },
 
-            personal_care: {
-                face_product_name: getVal('face-name'),
-                face_product_brand: getVal('face-brand'),
-                hair_product_name: getVal('hair-name'),
-                hair_product_brand: getVal('hair-brand'),
-                hair_oil: getVal('hair-oil'),
-                skincare_routine: getVal('skincare-routine')
+            summary: {
+                personal_care: {
+                    face_name: getVal('face-name'),
+                    face_brand: getVal('face-brand'),
+                    hair_name: getVal('hair-name'),
+                    hair_brand: getVal('hair-brand'),
+                    hair_oil: getVal('hair-oil'),
+                    routine: getVal('skincare-routine')
+                },
+                diet: {
+                    breakfast: getVal('breakfast'),
+                    lunch: getVal('lunch'),
+                    dinner: getVal('dinner'),
+                    snacks: getVal('snacks')
+                },
+                activities: {
+                    tasks: getVal('tasks-completed'),
+                    travel: getVal('travel-dest'),
+                    screen_time: getVal('screen-time'),
+                    top_apps: getApps(),
+                    intent: getVal('app-usage-intent')
+                },
+                daily: {
+                    key_events: getVal('key-events'),
+                    activity_summary: getVal('daily-summary'),
+                    overall_exp: getVal('overall-exp'),
+                    other_notes: getVal('other-notes')
+                }
             },
 
-            diet_and_nutrition: {
-                breakfast: getVal('breakfast'),
-                lunch: getVal('lunch'),
-                dinner: getVal('dinner'),
-                additional_items: getVal('snacks')
-            },
-
-            activities_and_productivity: {
-                tasks_today_english: getVal('tasks-completed'),
-                travel_destination: getVal('travel-dest'),
-                phone_screen_on_hr: getVal('screen-time'),
-                most_used_apps: getApps(),
-                app_usage_intent: getVal('app-usage-intent')
-            },
-
-            additional_notes: {
-                key_events: getVal('key-events'),
-                other_note_status: getVal('other-notes-status')
-            },
-
-            daily_activity_summary: getVal('daily-summary'),
-            overall_day_experience: getVal('overall-exp')
+            // Legacy structure cleanup (keep null or remove if safe, setting to null to avoid confusion)
+            personal_care: null,
+            diet_and_nutrition: null,
+            activities_and_productivity: null,
+            additional_notes: null,
+            daily_activity_summary: null,
+            overall_day_experience: null
         };
     }
 
@@ -669,18 +789,18 @@ class UI {
             if (tl) {
                 ['morning', 'afternoon', 'evening', 'night'].forEach(p => {
                     if (tl[p]) {
-                        const block = document.querySelector(`.mood-block[data-period="${p}"]`);
+                        const block = document.querySelector(`.period-card[data-period="${p}"]`);
                         if (block) {
                             block.querySelector('.mood-slider').value = tl[p].mood_level || 5;
                             block.querySelector('.mood-val').innerText = tl[p].mood_level || 5;
 
-                            const catSel = block.querySelector('.mood-cat');
-                            catSel.value = tl[p].mood_category || "";
+                            const catSel = block.querySelector('.mood-category'); // Updated class name if needed, check HTML
+                            if (catSel) {
+                                catSel.value = tl[p].mood_category || "";
+                                // Trigger cat change
+                                this.updateMoodFeelings(catSel.value, block.querySelector('.mood-feel'));
+                            }
 
-                            // Trigger cat change to populate feelings
-                            this.updateMoodFeelings(catSel);
-
-                            // Then set feeling
                             block.querySelector('.mood-feel').value = tl[p].mood_feeling || "";
                         }
                     }
@@ -689,46 +809,86 @@ class UI {
         }
 
         // Summary
-        if (data.personal_care) {
-            setVal('face-name', data.personal_care.face_product_name);
-            setVal('face-brand', data.personal_care.face_product_brand);
-            setVal('hair-name', data.personal_care.hair_product_name);
-            setVal('hair-brand', data.personal_care.hair_product_brand);
-            setVal('hair-oil', data.personal_care.hair_oil);
-            setVal('skincare-routine', data.personal_care.skincare_routine);
-        }
-
-        if (data.diet_and_nutrition) {
-            setVal('breakfast', data.diet_and_nutrition.breakfast);
-            setVal('lunch', data.diet_and_nutrition.lunch);
-            setVal('dinner', data.diet_and_nutrition.dinner);
-            setVal('snacks', data.diet_and_nutrition.additional_items);
-        }
-
-        if (data.activities_and_productivity) {
-            setVal('tasks-completed', data.activities_and_productivity.tasks_today_english);
-            setVal('travel-dest', data.activities_and_productivity.travel_destination);
-            setVal('screen-time', data.activities_and_productivity.phone_screen_on_hr);
-            setVal('app-usage-intent', data.activities_and_productivity.app_usage_intent);
-
-            const apps = data.activities_and_productivity.most_used_apps;
-            if (Array.isArray(apps)) {
-                const rows = document.querySelectorAll('.app-row');
-                rows.forEach((row, idx) => {
-                    if (apps[idx]) {
-                        row.querySelector('.app-name').value = apps[idx].name || "";
-                        row.querySelector('.app-time').value = apps[idx].time || "";
-                    }
-                });
+        if (data.summary) {
+            // Personal Care
+            if (data.summary.personal_care) {
+                setVal('face-name', data.summary.personal_care.face_name);
+                setVal('face-brand', data.summary.personal_care.face_brand);
+                setVal('hair-name', data.summary.personal_care.hair_name);
+                setVal('hair-brand', data.summary.personal_care.hair_brand);
+                setVal('hair-oil', data.summary.personal_care.hair_oil);
+                setVal('skincare-routine', data.summary.personal_care.routine);
             }
-        }
+            // Diet
+            if (data.summary.diet) {
+                setVal('breakfast', data.summary.diet.breakfast);
+                setVal('lunch', data.summary.diet.lunch);
+                setVal('dinner', data.summary.diet.dinner);
+                setVal('snacks', data.summary.diet.snacks);
+            }
+            // Activities
+            if (data.summary.activities) {
+                setVal('tasks-completed', data.summary.activities.tasks);
+                setVal('travel-dest', data.summary.activities.travel);
+                setVal('screen-time', data.summary.activities.screen_time);
+                setVal('app-usage-intent', data.summary.activities.intent);
 
-        if (data.additional_notes) {
-            setVal('key-events', data.additional_notes.key_events);
-            setVal('other-note-status', data.additional_notes.other_note_status);
+                if (data.summary.activities.top_apps) {
+                    const rows = document.querySelectorAll('.app-row');
+                    data.summary.activities.top_apps.forEach((app, i) => {
+                        if (rows[i]) {
+                            rows[i].querySelector('.app-name').value = app.name || "";
+                            rows[i].querySelector('.app-time').value = app.time || "";
+                        }
+                    });
+                }
+            }
+            // Daily
+            if (data.summary.daily) {
+                setVal('key-events', data.summary.daily.key_events);
+                setVal('daily-summary', data.summary.daily.activity_summary);
+                setVal('overall-exp', data.summary.daily.overall_exp);
+                setVal('other-note-status', data.summary.daily.other_notes || "No"); // Assuming mapped
+            }
+        } else {
+            // Backward Compatibility for old entries
+            if (data.personal_care) {
+                setVal('face-name', data.personal_care.face_product_name);
+                setVal('face-brand', data.personal_care.face_product_brand);
+                setVal('hair-name', data.personal_care.hair_product_name);
+                setVal('hair-brand', data.personal_care.hair_product_brand);
+                setVal('hair-oil', data.personal_care.hair_oil);
+                setVal('skincare-routine', data.personal_care.skincare_routine);
+            }
+
+            if (data.diet_and_nutrition) {
+                setVal('breakfast', data.diet_and_nutrition.breakfast);
+                setVal('lunch', data.diet_and_nutrition.lunch);
+                setVal('dinner', data.diet_and_nutrition.dinner);
+                setVal('snacks', data.diet_and_nutrition.additional_items);
+            }
+
+            if (data.activities_and_productivity) {
+                setVal('tasks-completed', data.activities_and_productivity.tasks_today_english);
+                setVal('travel-dest', data.activities_and_productivity.travel_destination);
+                setVal('screen-time', data.activities_and_productivity.phone_screen_on_hr);
+                setVal('app-usage-intent', data.activities_and_productivity.app_usage_intent);
+
+                const apps = data.activities_and_productivity.most_used_apps;
+                if (Array.isArray(apps)) {
+                    const rows = document.querySelectorAll('.app-row');
+                    rows.forEach((row, idx) => {
+                        if (apps[idx]) {
+                            row.querySelector('.app-name').value = apps[idx].name || "";
+                            row.querySelector('.app-time').value = apps[idx].time || "";
+                        }
+                    });
+                }
+            }
+
+            if (data.daily_activity_summary) setVal('daily-summary', data.daily_activity_summary);
+            if (data.overall_day_experience) setVal('overall-exp', data.overall_day_experience);
         }
-        setVal('daily-summary', data.daily_activity_summary);
-        setVal('overall-exp', data.overall_day_experience);
 
         // Update all counters
         document.querySelectorAll('textarea').forEach(el => {
@@ -1100,13 +1260,16 @@ class UI {
                 this.showToast('Basic data imported from previous day');
             }
         } else if (section === 'personal_care') {
-            if (prevData.personal_care) {
-                document.getElementById('face-name').value = prevData.personal_care.face_product_name || "";
-                document.getElementById('face-brand').value = prevData.personal_care.face_product_brand || "";
-                document.getElementById('hair-name').value = prevData.personal_care.hair_product_name || "";
-                document.getElementById('hair-brand').value = prevData.personal_care.hair_product_brand || "";
-                document.getElementById('hair-oil').value = prevData.personal_care.hair_oil || "";
-                document.getElementById('skincare-routine').value = prevData.personal_care.skincare_routine || "";
+            // Support both new (summary.personal_care) and legacy (personal_care)
+            const pc = prevData.summary?.personal_care || prevData.personal_care;
+
+            if (pc) {
+                document.getElementById('face-name').value = pc.face_name || pc.face_product_name || "";
+                document.getElementById('face-brand').value = pc.face_brand || pc.face_product_brand || "";
+                document.getElementById('hair-name').value = pc.hair_name || pc.hair_product_name || "";
+                document.getElementById('hair-brand').value = pc.hair_brand || pc.hair_product_brand || "";
+                document.getElementById('hair-oil').value = pc.hair_oil || "";
+                document.getElementById('skincare-routine').value = pc.routine || pc.skincare_routine || "";
                 this.showToast('Personal Care data imported');
             }
         }

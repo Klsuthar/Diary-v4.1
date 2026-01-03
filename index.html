@@ -580,74 +580,177 @@
                 <div class="card summary-card">
                     <div class="card-header-flex">
                         <h3><i class="fas fa-sparkles"></i> Personal Care</h3>
-                        <button id="import-last-care" class="text-btn">Import Last</button>
+                        <button id="import-last-care" class="text-btn"><i class="fas fa-file-import"></i> Import
+                            Last</button>
                     </div>
                     <div class="grid-2">
-                        <div class="form-group"><input type="text" id="face-name" placeholder="Face Product"></div>
-                        <div class="form-group"><input type="text" id="face-brand" placeholder="Brand"></div>
-                        <div class="form-group"><input type="text" id="hair-name" placeholder="Hair Product"></div>
-                        <div class="form-group"><input type="text" id="hair-brand" placeholder="Brand"></div>
+                        <div class="form-group">
+                            <label>Face Product</label>
+                            <input type="text" id="face-name" placeholder="Name (e.g. Cetaphil)">
+                            <div id="face-name-suggestions" class="suggestion-chips-container" data-input="face-name">
+                                <span class="chip">Cetaphil</span><span class="chip">Neutrogena</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Brand</label>
+                            <input type="text" id="face-brand" placeholder="Brand">
+                            <div id="face-brand-suggestions" class="suggestion-chips-container" data-input="face-brand">
+                                <span class="chip">Cetaphil</span><span class="chip">L'Oreal</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Hair Product</label>
+                            <input type="text" id="hair-name" placeholder="Name (e.g. Pantene)">
+                            <div id="hair-name-suggestions" class="suggestion-chips-container" data-input="hair-name">
+                                <span class="chip">Pantene</span><span class="chip">Dove</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Brand</label>
+                            <input type="text" id="hair-brand" placeholder="Brand">
+                            <div id="hair-brand-suggestions" class="suggestion-chips-container" data-input="hair-brand">
+                                <span class="chip">P&G</span><span class="chip">Unilever</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group mt-1"><input type="text" id="hair-oil" placeholder="Hair Oil"></div>
-                    <div class="form-group mt-1"><textarea id="skincare-routine" placeholder="Skincare Routine"
-                            rows="2"></textarea></div>
+                    <div class="form-group mt-2">
+                        <label>Hair Oil</label>
+                        <input type="text" id="hair-oil" placeholder="e.g. Coconut Oil">
+                        <div id="hair-oil-suggestions" class="suggestion-chips-container" data-input="hair-oil">
+                            <span class="chip">Coconut</span><span class="chip">Almond</span><span
+                                class="chip">None</span>
+                        </div>
+                    </div>
+                    <div class="form-group mt-2">
+                        <label>Skincare Routine <small id="skincare-routine-count"
+                                class="char-counter">(0/200)</small></label>
+                        <textarea id="skincare-routine" placeholder="Describe routine..." rows="2"></textarea>
+                    </div>
                 </div>
 
                 <!-- Diet -->
                 <div class="card summary-card">
-                    <h3><i class="fas fa-utensils"></i> Diet</h3>
-                    <div class="form-group"><input type="text" id="breakfast" placeholder="Breakfast"></div>
-                    <div class="form-group"><input type="text" id="lunch" placeholder="Lunch"></div>
-                    <div class="form-group"><input type="text" id="dinner" placeholder="Dinner"></div>
-                    <div class="form-group"><input type="text" id="snacks" placeholder="Additional / Snacks"></div>
+                    <h3><i class="fas fa-utensils"></i> Diet & Nutrition</h3>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-coffee"></i> Breakfast</label>
+                        <input type="text" id="breakfast" placeholder="What did you have?">
+                        <div id="breakfast-suggestions" class="suggestion-chips-container" data-input="breakfast">
+                            <span class="chip">Oatmeal</span><span class="chip">Eggs</span><span
+                                class="chip">Toast</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-sun"></i> Lunch</label>
+                        <input type="text" id="lunch" placeholder="What did you have?">
+                        <div id="lunch-suggestions" class="suggestion-chips-container" data-input="lunch">
+                            <span class="chip">Rice</span><span class="chip">Salad</span><span
+                                class="chip">Chicken</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-moon"></i> Dinner</label>
+                        <input type="text" id="dinner" placeholder="What did you have?">
+                        <div id="dinner-suggestions" class="suggestion-chips-container" data-input="dinner">
+                            <span class="chip">Roti</span><span class="chip">Soup</span><span
+                                class="chip">Vegetables</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-cookie-bite"></i> Snacks</label>
+                        <input type="text" id="snacks" placeholder="Any snacks?">
+                        <div id="snacks-suggestions" class="suggestion-chips-container" data-input="snacks">
+                            <span class="chip">Tea</span><span class="chip">Fruits</span><span class="chip">Nuts</span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Activities -->
                 <div class="card summary-card">
-                    <h3><i class="fas fa-tasks"></i> Activities & Apps</h3>
+                    <h3><i class="fas fa-calendar-check"></i> Activities & Productivity</h3>
+
                     <div class="form-group">
-                        <textarea id="tasks-completed" placeholder="Tasks Completed Today" rows="2"></textarea>
+                        <label>Tasks Completed <small id="tasks-completed-count"
+                                class="char-counter">(0/500)</small></label>
+                        <textarea id="tasks-completed" placeholder="List tasks..." rows="3"></textarea>
                     </div>
-                    <div class="grid-2">
-                        <div class="form-group"><input type="text" id="travel-dest" placeholder="Travel Destination">
-                        </div>
-                        <div class="form-group"><input type="text" id="screen-time" placeholder="Screen Time (HH:MM)">
+
+                    <div class="form-group">
+                        <label>Travel Destination</label>
+                        <input type="text" id="travel-dest" placeholder="Where did you go?">
+                        <div id="travel-suggestions" class="suggestion-chips-container" data-input="travel-dest">
+                            <span class="chip">Office</span><span class="chip">Gym</span><span class="chip">Home</span>
                         </div>
                     </div>
 
-                    <h5 class="mt-2">Top 5 Apps</h5>
-                    <div id="top-apps-container">
-                        <div class="app-row flex-row"><span class="rank">1</span><input type="text" class="app-name"
-                                placeholder="App Name"><input type="text" class="app-time" placeholder="Time"></div>
-                        <div class="app-row flex-row"><span class="rank">2</span><input type="text" class="app-name"
-                                placeholder="App Name"><input type="text" class="app-time" placeholder="Time"></div>
-                        <div class="app-row flex-row"><span class="rank">3</span><input type="text" class="app-name"
-                                placeholder="App Name"><input type="text" class="app-time" placeholder="Time"></div>
-                        <div class="app-row flex-row"><span class="rank">4</span><input type="text" class="app-name"
-                                placeholder="App Name"><input type="text" class="app-time" placeholder="Time"></div>
-                        <div class="app-row flex-row"><span class="rank">5</span><input type="text" class="app-name"
-                                placeholder="App Name"><input type="text" class="app-time" placeholder="Time"></div>
+                    <div class="form-group">
+                        <label><i class="fas fa-mobile-alt"></i> Screen Time (HH:MM)</label>
+                        <input type="time" id="screen-time">
                     </div>
-                    <div class="form-group mt-1">
-                        <input type="text" id="app-usage-intent" placeholder="App Usage Intent">
+
+                    <h5 class="mt-2">Top 5 Apps Used</h5>
+                    <div id="top-apps-container">
+                        <div class="app-row flex-row">
+                            <span class="rank-circle">1</span>
+                            <input type="text" class="app-name" placeholder="App">
+                            <input type="time" class="app-time">
+                        </div>
+                        <div class="app-row flex-row">
+                            <span class="rank-circle">2</span>
+                            <input type="text" class="app-name" placeholder="App">
+                            <input type="time" class="app-time">
+                        </div>
+                        <div class="app-row flex-row">
+                            <span class="rank-circle">3</span>
+                            <input type="text" class="app-name" placeholder="App">
+                            <input type="time" class="app-time">
+                        </div>
+                        <div class="app-row flex-row">
+                            <span class="rank-circle">4</span>
+                            <input type="text" class="app-name" placeholder="App">
+                            <input type="time" class="app-time">
+                        </div>
+                        <div class="app-row flex-row">
+                            <span class="rank-circle">5</span>
+                            <input type="text" class="app-name" placeholder="App">
+                            <input type="time" class="app-time">
+                        </div>
+                    </div>
+
+                    <div class="form-group mt-2">
+                        <label>App Usage Intent</label>
+                        <input type="text" id="app-usage-intent" placeholder="Productive, Entertainment...">
+                        <div id="intent-suggestions" class="suggestion-chips-container" data-input="app-usage-intent">
+                            <span class="chip">Productive</span><span class="chip">Entertainment</span><span
+                                class="chip">Social</span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Daily Summary -->
                 <div class="card summary-card">
-                    <h3><i class="fas fa-pencil-alt"></i> Daily Summary</h3>
+                    <h3><i class="fas fa-book-open"></i> Daily Summary</h3>
+
                     <div class="form-group">
-                        <label>Key Events <small id="key-events-count">(0)</small></label>
-                        <textarea id="key-events" rows="2"></textarea>
+                        <label>Key Events <small id="key-events-count" class="char-counter">(0/300)</small></label>
+                        <textarea id="key-events" rows="2" placeholder="Highlight significant moments"></textarea>
                     </div>
+
                     <div class="form-group">
-                        <label>Activity Summary <small id="daily-summary-count">(0)</small></label>
-                        <textarea id="daily-summary" rows="3"></textarea>
+                        <label>Activity Summary <small id="daily-summary-count"
+                                class="char-counter">(0/500)</small></label>
+                        <textarea id="daily-summary" rows="3" placeholder="Summarize activities"></textarea>
                     </div>
+
                     <div class="form-group">
-                        <label>Overall Experience <small id="overall-exp-count">(0)</small></label>
-                        <textarea id="overall-exp" rows="3"></textarea>
+                        <label>Overall Experience <small id="overall-exp-count"
+                                class="char-counter">(0/500)</small></label>
+                        <textarea id="overall-exp" rows="3" placeholder="How was your day?"></textarea>
                     </div>
+
                     <div class="form-group">
                         <label>Other Notes?</label>
                         <select id="other-notes-status">
