@@ -568,6 +568,25 @@ input[type="range"]::-webkit-slider-thumb {
     pointer-events: none;
     width: 0;
     height: 0;
+    z-index: -1;
+}
+
+/* Ensure date input is accessible when focused */
+.hidden-date-input:focus {
+    opacity: 1;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: auto;
+    height: auto;
+    pointer-events: auto;
+    z-index: 9999;
+    background: var(--secondary-bg);
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    padding: 10px;
+    color: var(--text-primary);
 }
 
 /* Toast */
@@ -576,13 +595,16 @@ input[type="range"]::-webkit-slider-thumb {
     bottom: 80px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(16, 185, 129, 0.2);
     color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 20px;
-    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
     z-index: 1000;
     transition: opacity 0.3s;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Spinner */

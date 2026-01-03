@@ -1,10 +1,18 @@
 class UI {
     constructor(storage) {
         this.storage = storage;
-        this.currentDate = new Date().toISOString().split('T')[0];
+        // Ensure current date is properly set to today
+        const today = new Date();
+        this.currentDate = today.getFullYear() + '-' + 
+            String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+            String(today.getDate()).padStart(2, '0');
 
         // Reference Date: July 4, 2003
         this.referenceDate = new Date('2003-07-04');
+
+        // Track changes
+        this.hasUnsavedChanges = false;
+        this.lastSavedData = null;
 
         this.moodCategories = {
             'positive_high_energy': ['happy', 'calm', 'peaceful', 'relaxed', 'content', 'motivated', 'energetic', 'confident', 'hopeful', 'satisfied'],
@@ -36,7 +44,10 @@ class UI {
         };
 
         this.debouncedSave = this.debounce(() => {
-            this.saveEntry();
+            // Only save if there are actual changes
+            if (this.hasUnsavedChanges) {
+                this.saveEntry();
+            }
         }, 500);
 
         this.initEventListeners();
@@ -79,6 +90,14 @@ class UI {
 
         // Date Controls
         const updateDateUI = (change) => {
+            // Check for unsaved changes
+            if (this.hasUnsavedChanges) {
+                if (!confirm('You have unsaved changes. Do you want to save before navigating?')) {
+                    return;
+                }
+                this.saveEntry(true);
+            }
+            
             const content = document.querySelector('.content-area');
             content.style.opacity = '0';
             setTimeout(() => {
@@ -93,7 +112,20 @@ class UI {
         document.querySelectorAll('#next-date').forEach(btn => btn.addEventListener('click', () => updateDateUI(1)));
 
         this.dateBtn.addEventListener('click', () => {
-            this.hiddenDateInput.showPicker();
+            // Fallback for browsers that don't support showPicker()
+            if (this.hiddenDateInput.showPicker) {
+                try {
+                    this.hiddenDateInput.showPicker();
+                } catch (e) {
+                    // Fallback: focus and click the input
+                    this.hiddenDateInput.focus();
+                    this.hiddenDateInput.click();
+                }
+            } else {
+                // Fallback: focus and click the input
+                this.hiddenDateInput.focus();
+                this.hiddenDateInput.click();
+            }
         });
 
         this.hiddenDateInput.addEventListener('change', (e) => {
@@ -193,6 +225,7 @@ class UI {
                         valSpan.innerText = slider.value;
                     }
                 }
+                this.hasUnsavedChanges = true;
                 this.debouncedSave();
             });
         });
@@ -405,7 +438,10 @@ class UI {
         // Generic Auto-Save & Counters
         document.querySelectorAll('input, textarea, select').forEach(el => {
             if (el.type !== 'range') { // Sliders handled
-                el.addEventListener('input', this.debouncedSave);
+                el.addEventListener('input', () => {
+                    this.hasUnsavedChanges = true;
+                    this.debouncedSave();
+                });
             }
         });
 
@@ -610,12 +646,11 @@ class UI {
         document.querySelector(`.nav-item[data-target="${tabId}"]`).classList.add('active');
 
         if (tabId === 'tab-history') {
-            this.renderHistory(document.getElementById('search-history')?.value || '', this.currentFilter || 'all');
+            this.renderHistory('', 'all');
         }
     }
 
     changeDate(offset) {
-        this.saveEntry(false); // Auto-save silent
         const d = new Date(this.currentDate);
         d.setDate(d.getDate() + offset);
         this.setDate(d.toISOString().split('T')[0]);
@@ -628,7 +663,7 @@ class UI {
     }
 
     updateDateDisplay() {
-        const d = new Date(this.currentDate);
+        const d = new Date(this.currentDate + 'T00:00:00'); // Ensure proper date parsing
         const options = { year: 'numeric', month: 'short', day: 'numeric' };
         this.dateDisplay.innerText = d.toLocaleDateString('en-US', options);
         this.weekdayDisplay.innerText = d.toLocaleDateString('en-US', { weekday: 'long' });
@@ -799,8 +834,15 @@ class UI {
     loadEntry(date) {
         this.resetForm();
         const data = this.storage.getEntry(date);
+        
+        // Temporarily disable change tracking during load
+        const tempDisableTracking = this.hasUnsavedChanges;
+        this.hasUnsavedChanges = false;
+        
         if (!data) {
             this.setDefaultValues();
+            this.lastSavedData = null;
+            this.hasUnsavedChanges = false;
             return;
         }
 
@@ -1004,9 +1046,17 @@ class UI {
             const counter = document.getElementById(countId);
             if (counter) counter.innerText = `(${el.value.length})`;
         });
+        
+        // Store loaded data and reset change flag
+        this.lastSavedData = JSON.stringify(data);
+        this.hasUnsavedChanges = false;
     }
 
     resetForm() {
+        // Disable change tracking during reset
+        const wasTracking = this.hasUnsavedChanges;
+        this.hasUnsavedChanges = false;
+        
         document.querySelectorAll('input, select, textarea').forEach(el => {
             if (el.type !== 'date') el.value = "";
         });
@@ -1024,7 +1074,7 @@ class UI {
             const el = document.getElementById(id);
             if (el && !el.value) {
                 el.value = val;
-                el.dispatchEvent(new Event('input'));
+                // Don't trigger input event to avoid marking as changed
             }
         };
         setIfEmpty('temp-min', '15');
@@ -1036,13 +1086,34 @@ class UI {
         setIfEmpty('medications', 'No');
         setIfEmpty('symptoms', 'No');
         setIfEmpty('other-notes-status', 'No');
+        
+        // Manually update displays without triggering events
+        const aqiEl = document.getElementById('aqi');
+        if (aqiEl) {
+            document.getElementById('aqi-value').innerText = aqiEl.value;
+            this.updateAQILabel(parseInt(aqiEl.value), document.getElementById('aqi-label'));
+        }
+        const uvEl = document.getElementById('uv-index');
+        if (uvEl) {
+            document.getElementById('uv-value').innerText = uvEl.value;
+            this.updateUVLabel(parseInt(uvEl.value), document.getElementById('uv-label'));
+        }
     }
 
     saveEntry(showToast = false) {
         const data = this.collectData();
         const res = this.storage.saveEntry(this.currentDate, data);
-        if (res.success && showToast) {
-            this.showToast('Saved Successfully');
+        if (res.success) {
+            this.hasUnsavedChanges = false;
+            this.lastSavedData = JSON.stringify(data);
+            if (showToast) {
+                this.showToast('Saved Successfully');
+            }
+        }
+        // Refresh history if on history tab
+        const historyTab = document.getElementById('tab-history');
+        if (historyTab && historyTab.classList.contains('active')) {
+            this.renderHistory('', 'all');
         }
     }
 
@@ -1159,10 +1230,10 @@ class UI {
                 ${statusHtml}
                 
                 <div class="action-row">
-                    <button class="icon-action-btn" onclick="app.ui.loadHistory('${date}')" title="Edit"><i class="fas fa-edit"></i></button>
-                    <button class="icon-action-btn" onclick="app.ui.exportOne('${date}')" title="Export JSON"><i class="fas fa-download"></i></button>
+                    <button class="icon-action-btn edit-btn" data-date="${date}" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button class="icon-action-btn download-btn" data-date="${date}" title="Export JSON"><i class="fas fa-download"></i></button>
                     <button class="icon-action-btn expand-btn" title="View Data"><i class="fas fa-code"></i></button>
-                    <button class="icon-action-btn delete-btn" onclick="app.ui.deleteOne('${date}')" title="Delete"><i class="fas fa-trash"></i></button>
+                    <button class="icon-action-btn delete-btn" data-date="${date}" title="Delete"><i class="fas fa-trash"></i></button>
                 </div>
 
                 <div class="expanded-view">
@@ -1178,6 +1249,24 @@ class UI {
                 e.stopPropagation();
                 const view = div.querySelector('.expanded-view');
                 view.classList.toggle('show');
+            });
+
+            // Edit Button
+            div.querySelector('.edit-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.loadHistory(e.currentTarget.dataset.date);
+            });
+
+            // Download Button
+            div.querySelector('.download-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.exportOne(e.currentTarget.dataset.date);
+            });
+
+            // Delete Button
+            div.querySelector('.delete-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.deleteOne(e.currentTarget.dataset.date);
             });
 
             // Card Click (Selection or Edit)
@@ -1311,7 +1400,7 @@ class UI {
     deleteOne(date) {
         if (confirm('Delete this entry?')) {
             this.storage.deleteEntry(date);
-            this.renderHistory();
+            this.renderHistory('', 'all');
             if (date === this.currentDate) this.resetForm();
         }
     }
@@ -1320,7 +1409,7 @@ class UI {
         if (confirm(`Delete ${this.selectedEntries.size} entries?`)) {
             this.selectedEntries.forEach(d => this.storage.deleteEntry(d));
             this.exitMultiSelect();
-            this.renderHistory();
+            this.renderHistory('', 'all');
         }
     }
 
@@ -1343,13 +1432,15 @@ class UI {
             const res = this.storage.importEntries(content);
             if (res.success) {
                 this.showToast(`Imported ${res.count} entries`);
-                // If current date was updated?
                 this.loadEntry(this.currentDate);
-                this.renderHistory();
+                const historyTab = document.getElementById('tab-history');
+                if (historyTab && historyTab.classList.contains('active')) {
+                    this.renderHistory('', 'all');
+                }
             } else {
                 alert('Import Failed: ' + res.error);
             }
-            e.target.value = ''; // reset
+            e.target.value = '';
         };
         reader.readAsText(file);
     }
@@ -1358,7 +1449,10 @@ class UI {
         if (confirm('Clear current form and delete saved data?')) {
             this.storage.deleteEntry(this.currentDate);
             this.resetForm();
-            this.renderHistory();
+            const historyTab = document.getElementById('tab-history');
+            if (historyTab && historyTab.classList.contains('active')) {
+                this.renderHistory('', 'all');
+            }
         }
     }
 
