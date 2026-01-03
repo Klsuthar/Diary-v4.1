@@ -298,6 +298,11 @@ textarea {
     transition: 0.2s;
 }
 
+textarea {
+    resize: vertical;
+    width: 100% !important;
+}
+
 input:focus,
 select:focus,
 textarea:focus {
@@ -1611,7 +1616,7 @@ input[type="range"]::-webkit-slider-thumb {
 .card-header-flex h3 {
     margin: 0;
     font-size: 18px;
-    color: #333;
+    color: var(--accent);
     display: flex;
     align-items: center;
     gap: 8px;

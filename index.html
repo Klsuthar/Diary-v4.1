@@ -69,122 +69,99 @@
             <!-- 1. Basic Tab -->
             <section id="tab-basic" class="tab-content active">
 
-                <!-- Date Section -->
-                <div class="card date-card">
-                    <div class="date-navigation">
-                        <button class="nav-btn" id="prev-date">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <div class="date-display" id="date-btn">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span id="display-date-full">Monday, January 15, 2024</span>
-                        </div>
-                        <button class="nav-btn" id="next-date">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-                    <div class="day-counter">
-                        Day <span id="day-counter">--</span> since July 4, 2003
-                    </div>
-                </div>
-
-                <!-- Temperature Section -->
+                <!-- Environment Card -->
                 <div class="card">
-                    <label class="field-label">
-                        <i class="fas fa-temperature-high"></i> Temperature
-                    </label>
-                    <div class="temp-range">
-                        <div class="temp-input">
-                            <label>Min</label>
-                            <input type="number" id="temp-min" placeholder="Min" min="-10" max="60">
-                            <span>°C</span>
-                        </div>
-                        <div class="temp-input">
-                            <label>Max</label>
-                            <input type="number" id="temp-max" placeholder="Max" min="-10" max="60">
-                            <span>°C</span>
+                    <div class="card-header-flex">
+                        <h3><i class="fas fa-cloud-sun"></i> Environment</h3>
+                        <button id="import-last-env" class="text-btn"><i class="fas fa-file-import"></i> Import Last</button>
+                    </div>
+
+                    <!-- Temperature Section -->
+                    <div class="form-group">
+                        <label class="field-label">
+                            <i class="fas fa-temperature-high"></i> Temperature
+                        </label>
+                        <div class="temp-range">
+                            <div class="temp-input">
+                                <label>Min</label>
+                                <input type="number" id="temp-min" placeholder="Min" min="-10" max="60">
+                                <span>°C</span>
+                            </div>
+                            <div class="temp-input">
+                                <label>Max</label>
+                                <input type="number" id="temp-max" placeholder="Max" min="-10" max="60">
+                                <span>°C</span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Weather Condition -->
-                <div class="card">
-                    <label class="field-label">
-                        <i class="fas fa-cloud-sun"></i> Weather Condition
-                    </label>
-                    <select id="weather-condition" class="select-input">
-                        <option value="">Select weather</option>
-                        <option value="Sunny">☀️ Sunny</option>
-                        <option value="Cloudy">☁️ Cloudy</option>
-                        <option value="Rainy">🌧️ Rainy</option>
-                        <option value="Stormy">⛈️ Stormy</option>
-                        <option value="Snowy">❄️ Snowy</option>
-                        <option value="Windy">💨 Windy</option>
-                        <option value="Foggy">🌫️ Foggy</option>
-                    </select>
-                </div>
+                    <!-- Weather Condition -->
+                    <div class="form-group">
+                        <label class="field-label">
+                            <i class="fas fa-cloud-sun"></i> Weather Condition
+                        </label>
+                        <input type="text" id="weather-condition" list="weather-suggestions" placeholder="Enter weather condition">
+                        <datalist id="weather-suggestions">
+                            <option value="Sunny">
+                            <option value="Cloudy">
+                            <option value="Rainy">
+                            <option value="Stormy">
+                            <option value="Snowy">
+                            <option value="Windy">
+                            <option value="Foggy">
+                        </datalist>
+                    </div>
 
-                <!-- Air Quality Index -->
-                <div class="card">
-                    <label class="field-label">
-                        <i class="fas fa-wind"></i> Air Quality Index (AQI)
-                    </label>
-                    <div class="slider-container">
-                        <input type="range" id="aqi" min="0" max="300" value="50" class="slider">
-                        <div class="slider-value">
-                            <span id="aqi-value">50</span>
-                            <span id="aqi-label" class="aqi-good">Good</span>
+                    <!-- Air Quality Index -->
+                    <div class="form-group">
+                        <label class="field-label">
+                            <i class="fas fa-wind"></i> Air Quality Index (AQI)
+                        </label>
+                        <div class="slider-container">
+                            <input type="range" id="aqi" min="0" max="300" value="50" class="slider">
+                            <div class="slider-value">
+                                <span id="aqi-value">50</span>
+                                <span id="aqi-label" class="aqi-good">Good</span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Humidity -->
-                <div class="card">
-                    <label class="field-label">
-                        <i class="fas fa-tint"></i> Humidity
-                    </label>
-                    <div class="slider-container">
-                        <input type="range" id="humidity" min="0" max="100" value="50" class="slider">
-                        <div class="slider-value">
-                            <span id="humidity-value">50</span>%
+                    <!-- Humidity -->
+                    <div class="form-group">
+                        <label class="field-label">
+                            <i class="fas fa-tint"></i> Humidity
+                        </label>
+                        <div class="slider-container">
+                            <input type="range" id="humidity" min="0" max="100" value="50" class="slider">
+                            <div class="slider-value">
+                                <span id="humidity-value">50</span>%
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- UV Index -->
-                <div class="card">
-                    <label class="field-label">
-                        <i class="fas fa-sun"></i> UV Index
-                    </label>
-                    <div class="slider-container">
-                        <input type="range" id="uv-index" min="0" max="12" value="0" class="slider uv-slider">
-                        <div class="slider-value">
-                            <span id="uv-value">0</span>
-                            <span id="uv-label" class="uv-low">Low</span>
+                    <!-- UV Index -->
+                    <div class="form-group">
+                        <label class="field-label">
+                            <i class="fas fa-sun"></i> UV Index
+                        </label>
+                        <div class="slider-container">
+                            <input type="range" id="uv-index" min="0" max="12" value="0" class="slider uv-slider">
+                            <div class="slider-value">
+                                <span id="uv-value">0</span>
+                                <span id="uv-label" class="uv-low">Low</span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Environment Experience -->
-                <div class="card">
-                    <label class="field-label">
-                        <i class="fas fa-leaf"></i> Environment Experience
-                    </label>
-                    <textarea id="env-experience" rows="3"
-                        placeholder="Describe your environment experience..."></textarea>
-                    <div class="suggestions" id="env-suggestions">
-                        <span class="suggestion-chip">Pleasant weather</span>
-                        <span class="suggestion-chip">Hot and humid</span>
-                        <span class="suggestion-chip">Cool breeze</span>
-                        <span class="suggestion-chip">Comfortable</span>
-                        <span class="suggestion-chip">Heavy Rain</span>
+                    <!-- Environment Experience -->
+                    <div class="form-group">
+                        <label class="field-label">
+                            <i class="fas fa-leaf"></i> Environment Experience
+                        </label>
+                        <textarea id="env-experience" rows="2" style="resize: vertical; width: 100%;"
+                            placeholder="Describe your environment experience..."></textarea>
                     </div>
                 </div>
-
-                <!-- Import Button -->
-                <button class="import-btn" id="import-last-env">
-                    <i class="fas fa-copy"></i> Import from Last Day
-                </button>
 
             </section>
 
@@ -307,14 +284,7 @@
                     <label class="field-label">
                         <i class="fas fa-pills"></i> Medications
                     </label>
-                    <textarea id="medications" rows="2" placeholder="List medications taken today..."></textarea>
-                    <div class="suggestions" id="meds-suggestions">
-                        <span class="suggestion-chip">Vitamin D</span>
-                        <span class="suggestion-chip">Omega-3</span>
-                        <span class="suggestion-chip">Multivitamin</span>
-                        <span class="suggestion-chip">Calcium</span>
-                        <span class="suggestion-chip">Iron</span>
-                    </div>
+                    <textarea id="medications" rows="2" style="resize: vertical; width: 100%;" placeholder="List medications taken today..."></textarea>
                 </div>
 
                 <!-- Symptoms Card -->
@@ -322,15 +292,7 @@
                     <label class="field-label">
                         <i class="fas fa-stethoscope"></i> Physical Symptoms
                     </label>
-                    <textarea id="symptoms" rows="2" placeholder="Any physical symptoms or discomfort?"></textarea>
-                    <div class="suggestions" id="symptoms-suggestions">
-                        <span class="suggestion-chip">Headache</span>
-                        <span class="suggestion-chip">Fatigue</span>
-                        <span class="suggestion-chip">Muscle Pain</span>
-                        <span class="suggestion-chip">Stomach Ache</span>
-                        <span class="suggestion-chip">Back Pain</span>
-                        <span class="suggestion-chip">None</span>
-                    </div>
+                    <textarea id="symptoms" rows="2" style="resize: vertical; width: 100%;" placeholder="Any physical symptoms or discomfort?"></textarea>
                 </div>
 
             </section>
@@ -519,13 +481,7 @@
                     </div>
                     <div class="form-group">
                         <label>Reason <small id="energy-reason-count" class="char-count">(0/300)</small></label>
-                        <textarea id="energy-reason" rows="2" placeholder="What affected your energy?"></textarea>
-                        <div class="suggestions-row">
-                            <span class="chip" onclick="app.ui.appendReason('energy', 'Good sleep')">Good sleep</span>
-                            <span class="chip" onclick="app.ui.appendReason('energy', 'Exercise')">Exercise</span>
-                            <span class="chip" onclick="app.ui.appendReason('energy', 'Coffee')">Coffee</span>
-                            <span class="chip" onclick="app.ui.appendReason('energy', 'Tired')">Tired</span>
-                        </div>
+                        <textarea id="energy-reason" rows="2" style="resize: vertical; width: 100%;" placeholder="What affected your energy?"></textarea>
                     </div>
                 </div>
 
@@ -542,13 +498,7 @@
                     </div>
                     <div class="form-group">
                         <label>Reason <small id="stress-reason-count" class="char-count">(0/300)</small></label>
-                        <textarea id="stress-reason" rows="2" placeholder="What is causing stress?"></textarea>
-                        <div class="suggestions-row">
-                            <span class="chip" onclick="app.ui.appendReason('stress', 'Work')">Work</span>
-                            <span class="chip" onclick="app.ui.appendReason('stress', 'Deadline')">Deadline</span>
-                            <span class="chip" onclick="app.ui.appendReason('stress', 'Family')">Family</span>
-                            <span class="chip" onclick="app.ui.appendReason('stress', 'Health')">Health</span>
-                        </div>
+                        <textarea id="stress-reason" rows="2" style="resize: vertical; width: 100%;" placeholder="What is causing stress?"></textarea>
                     </div>
                 </div>
 
@@ -586,40 +536,29 @@
                     <div class="grid-2">
                         <div class="form-group">
                             <label>Face Product</label>
-                            <input type="text" id="face-name" placeholder="Name (e.g. Cetaphil)">
-                            <div id="face-name-suggestions" class="suggestion-chips-container" data-input="face-name">
-                                <span class="chip">Cetaphil</span><span class="chip">Neutrogena</span>
-                            </div>
+                            <input type="text" id="face-name" list="face-name-list" placeholder="Name (e.g. Cetaphil)">
+                            <datalist id="face-name-list"></datalist>
                         </div>
                         <div class="form-group">
                             <label>Brand</label>
-                            <input type="text" id="face-brand" placeholder="Brand">
-                            <div id="face-brand-suggestions" class="suggestion-chips-container" data-input="face-brand">
-                                <span class="chip">Cetaphil</span><span class="chip">L'Oreal</span>
-                            </div>
+                            <input type="text" id="face-brand" list="face-brand-list" placeholder="Brand">
+                            <datalist id="face-brand-list"></datalist>
                         </div>
                         <div class="form-group">
                             <label>Hair Product</label>
-                            <input type="text" id="hair-name" placeholder="Name (e.g. Pantene)">
-                            <div id="hair-name-suggestions" class="suggestion-chips-container" data-input="hair-name">
-                                <span class="chip">Pantene</span><span class="chip">Dove</span>
-                            </div>
+                            <input type="text" id="hair-name" list="hair-name-list" placeholder="Name (e.g. Pantene)">
+                            <datalist id="hair-name-list"></datalist>
                         </div>
                         <div class="form-group">
                             <label>Brand</label>
-                            <input type="text" id="hair-brand" placeholder="Brand">
-                            <div id="hair-brand-suggestions" class="suggestion-chips-container" data-input="hair-brand">
-                                <span class="chip">P&G</span><span class="chip">Unilever</span>
-                            </div>
+                            <input type="text" id="hair-brand" list="hair-brand-list" placeholder="Brand">
+                            <datalist id="hair-brand-list"></datalist>
                         </div>
                     </div>
                     <div class="form-group mt-2">
                         <label>Hair Oil</label>
-                        <input type="text" id="hair-oil" placeholder="e.g. Coconut Oil">
-                        <div id="hair-oil-suggestions" class="suggestion-chips-container" data-input="hair-oil">
-                            <span class="chip">Coconut</span><span class="chip">Almond</span><span
-                                class="chip">None</span>
-                        </div>
+                        <input type="text" id="hair-oil" list="hair-oil-list" placeholder="e.g. Coconut Oil">
+                        <datalist id="hair-oil-list"></datalist>
                     </div>
                     <div class="form-group mt-2">
                         <label>Skincare Routine <small id="skincare-routine-count"
@@ -635,36 +574,21 @@
                     <div class="form-group">
                         <label><i class="fas fa-coffee"></i> Breakfast</label>
                         <input type="text" id="breakfast" placeholder="What did you have?">
-                        <div id="breakfast-suggestions" class="suggestion-chips-container" data-input="breakfast">
-                            <span class="chip">Oatmeal</span><span class="chip">Eggs</span><span
-                                class="chip">Toast</span>
-                        </div>
                     </div>
 
                     <div class="form-group">
                         <label><i class="fas fa-sun"></i> Lunch</label>
                         <input type="text" id="lunch" placeholder="What did you have?">
-                        <div id="lunch-suggestions" class="suggestion-chips-container" data-input="lunch">
-                            <span class="chip">Rice</span><span class="chip">Salad</span><span
-                                class="chip">Chicken</span>
-                        </div>
                     </div>
 
                     <div class="form-group">
                         <label><i class="fas fa-moon"></i> Dinner</label>
                         <input type="text" id="dinner" placeholder="What did you have?">
-                        <div id="dinner-suggestions" class="suggestion-chips-container" data-input="dinner">
-                            <span class="chip">Roti</span><span class="chip">Soup</span><span
-                                class="chip">Vegetables</span>
-                        </div>
                     </div>
 
                     <div class="form-group">
                         <label><i class="fas fa-cookie-bite"></i> Snacks</label>
                         <input type="text" id="snacks" placeholder="Any snacks?">
-                        <div id="snacks-suggestions" class="suggestion-chips-container" data-input="snacks">
-                            <span class="chip">Tea</span><span class="chip">Fruits</span><span class="chip">Nuts</span>
-                        </div>
                     </div>
                 </div>
 
@@ -682,51 +606,48 @@
                         <label>Travel Destination</label>
                         <input type="text" id="travel-dest" placeholder="Where did you go?">
                         <div id="travel-suggestions" class="suggestion-chips-container" data-input="travel-dest">
-                            <span class="chip">Office</span><span class="chip">Gym</span><span class="chip">Home</span>
+                            <span class="chip">School</span><span class="chip">Village</span><span class="chip">Home</span><span class="chip">Farm</span>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label><i class="fas fa-mobile-alt"></i> Screen Time (HH:MM)</label>
-                        <input type="time" id="screen-time">
+                        <label><i class="fas fa-mobile-alt"></i> Screen Time</label>
+                        <input type="text" id="screen-time" placeholder="e.g. 1h20m or 80m">
                     </div>
 
                     <h5 class="mt-2">Top 5 Apps Used</h5>
                     <div id="top-apps-container">
                         <div class="app-row flex-row">
                             <span class="rank-circle">1</span>
-                            <input type="text" class="app-name" placeholder="App">
-                            <input type="time" class="app-time">
+                            <input type="text" class="app-name" list="app-names-list" placeholder="App">
+                            <input type="text" class="app-time" placeholder="e.g. 1h20m">
                         </div>
                         <div class="app-row flex-row">
                             <span class="rank-circle">2</span>
-                            <input type="text" class="app-name" placeholder="App">
-                            <input type="time" class="app-time">
+                            <input type="text" class="app-name" list="app-names-list" placeholder="App">
+                            <input type="text" class="app-time" placeholder="e.g. 45m">
                         </div>
                         <div class="app-row flex-row">
                             <span class="rank-circle">3</span>
-                            <input type="text" class="app-name" placeholder="App">
-                            <input type="time" class="app-time">
+                            <input type="text" class="app-name" list="app-names-list" placeholder="App">
+                            <input type="text" class="app-time" placeholder="e.g. 30m">
                         </div>
                         <div class="app-row flex-row">
                             <span class="rank-circle">4</span>
-                            <input type="text" class="app-name" placeholder="App">
-                            <input type="time" class="app-time">
+                            <input type="text" class="app-name" list="app-names-list" placeholder="App">
+                            <input type="text" class="app-time" placeholder="e.g. 20m">
                         </div>
                         <div class="app-row flex-row">
                             <span class="rank-circle">5</span>
-                            <input type="text" class="app-name" placeholder="App">
-                            <input type="time" class="app-time">
+                            <input type="text" class="app-name" list="app-names-list" placeholder="App">
+                            <input type="text" class="app-time" placeholder="e.g. 15m">
                         </div>
                     </div>
+                    <datalist id="app-names-list"></datalist>
 
                     <div class="form-group mt-2">
                         <label>App Usage Intent</label>
                         <input type="text" id="app-usage-intent" placeholder="Productive, Entertainment...">
-                        <div id="intent-suggestions" class="suggestion-chips-container" data-input="app-usage-intent">
-                            <span class="chip">Productive</span><span class="chip">Entertainment</span><span
-                                class="chip">Social</span>
-                        </div>
                     </div>
                 </div>
 
@@ -741,7 +662,7 @@
 
                     <div class="form-group">
                         <label>Activity Summary <small id="daily-summary-count"
-                                class="char-counter">(0/500)</small></label>
+                                class="char-counter"></small></label>
                         <textarea id="daily-summary" rows="3" placeholder="Summarize activities"></textarea>
                     </div>
 

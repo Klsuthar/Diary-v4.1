@@ -121,11 +121,11 @@ class UI {
         });
         document.getElementById('menu-share').addEventListener('click', () => this.shareEntry());
         document.getElementById('menu-import').addEventListener('click', () => document.getElementById('import-file').click());
-        document.getElementById('import-file').addEventListener('change', (e) => this.importJSON(e));
+        document.getElementById('import-file').addEventListener('change', (e) => this.handleFileImport(e, false));
 
-        document.getElementById('menu-backup').addEventListener('click', () => this.backupData());
+        document.getElementById('menu-backup').addEventListener('click', () => this.createBackup());
         document.getElementById('menu-restore').addEventListener('click', () => document.getElementById('import-backup-file').click());
-        document.getElementById('import-backup-file').addEventListener('change', (e) => this.restoreBackup(e));
+        document.getElementById('import-backup-file').addEventListener('change', (e) => this.handleFileImport(e, true));
         document.getElementById('menu-refresh').addEventListener('click', () => location.reload());
 
         // Multi-select
@@ -395,16 +395,26 @@ class UI {
             }
         });
 
+        // Populate Weather Suggestions from Past Data
+        this.updateWeatherSuggestions();
+
         document.querySelectorAll('textarea').forEach(area => {
             const countId = area.id + '-count';
             const counter = document.getElementById(countId);
             if (counter) {
-                const limit = parseInt(counter.innerText.split('/')[1]) || 500;
+                const limitMatch = counter.innerText.match(/\/(\d+)/);
+                const limit = limitMatch ? parseInt(limitMatch[1]) : null;
                 const update = () => {
                     const len = area.value.length;
-                    counter.innerText = `(${len}/${limit})`;
-                    if (len >= limit) counter.style.color = 'red';
-                    else counter.style.color = '#999';
+                    const words = area.value.trim() ? area.value.trim().split(/\s+/).length : 0;
+                    if (limit) {
+                        counter.innerText = `(${len}/${limit})`;
+                        if (len >= limit) counter.style.color = 'red';
+                        else counter.style.color = '#999';
+                    } else {
+                        counter.innerText = `${words} words, ${len} chars`;
+                        counter.style.color = '#999';
+                    }
                 };
                 area.addEventListener('input', update);
                 update(); // init
@@ -497,6 +507,84 @@ class UI {
         } else {
             label.innerText = 'Extreme';
             label.classList.add('uv-extreme');
+        }
+    }
+
+    updateWeatherSuggestions() {
+        const entries = this.storage.getEntries();
+        const weatherSet = new Set();
+        Object.values(entries).forEach(entry => {
+            const weather = entry.environment?.weather_condition;
+            if (weather) weatherSet.add(weather);
+        });
+        
+        const datalist = document.getElementById('weather-suggestions');
+        if (datalist) {
+            weatherSet.forEach(weather => {
+                if (!datalist.querySelector(`option[value="${weather}"]`)) {
+                    const option = document.createElement('option');
+                    option.value = weather;
+                    datalist.appendChild(option);
+                }
+            });
+        }
+        
+        // Personal Care Suggestions
+        this.updatePersonalCareSuggestions();
+    }
+
+    updatePersonalCareSuggestions() {
+        const entries = this.storage.getEntries();
+        const suggestions = {
+            'face-name-list': new Set(),
+            'face-brand-list': new Set(),
+            'hair-name-list': new Set(),
+            'hair-brand-list': new Set(),
+            'hair-oil-list': new Set()
+        };
+        
+        const appNames = new Set();
+        
+        Object.values(entries).forEach(entry => {
+            const pc = entry.summary?.personal_care;
+            if (pc) {
+                if (pc.face_name) suggestions['face-name-list'].add(pc.face_name);
+                if (pc.face_brand) suggestions['face-brand-list'].add(pc.face_brand);
+                if (pc.hair_name) suggestions['hair-name-list'].add(pc.hair_name);
+                if (pc.hair_brand) suggestions['hair-brand-list'].add(pc.hair_brand);
+                if (pc.hair_oil) suggestions['hair-oil-list'].add(pc.hair_oil);
+            }
+            
+            // Collect app names
+            const apps = entry.summary?.activities?.top_apps;
+            if (apps && Array.isArray(apps)) {
+                apps.forEach(app => {
+                    if (app.name) appNames.add(app.name);
+                });
+            }
+        });
+        
+        Object.keys(suggestions).forEach(listId => {
+            const datalist = document.getElementById(listId);
+            if (datalist) {
+                datalist.innerHTML = '';
+                suggestions[listId].forEach(value => {
+                    const option = document.createElement('option');
+                    option.value = value;
+                    datalist.appendChild(option);
+                });
+            }
+        });
+        
+        // Populate app names
+        const appDatalist = document.getElementById('app-names-list');
+        if (appDatalist) {
+            appDatalist.innerHTML = '';
+            appNames.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                appDatalist.appendChild(option);
+            });
         }
     }
 
@@ -1214,9 +1302,23 @@ class UI {
         this.storage.downloadJSON(`${date}.json`, json);
     }
 
-    exportCurrentEntry() {
-        this.saveEntry(); // Ensure fresh
+    exportEntry() {
+        this.saveEntry();
         this.exportOne(this.currentDate);
+    }
+
+    shareEntry() {
+        this.saveEntry();
+        const json = this.storage.exportEntry(this.currentDate);
+        if (navigator.share) {
+            navigator.share({
+                title: `Diary Entry - ${this.currentDate}`,
+                text: json
+            }).catch(() => this.showToast('Share cancelled'));
+        } else {
+            navigator.clipboard.writeText(json);
+            this.showToast('Copied to clipboard');
+        }
     }
 
     exportSelected() {
