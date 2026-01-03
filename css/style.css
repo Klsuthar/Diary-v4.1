@@ -1265,3 +1265,148 @@ input[type="range"]::-webkit-slider-thumb {
     margin-bottom: 8px;
     color: var(--text-primary);
 }
+
+/* ---------------- MENTAL TAB SPECIFIC ---------------- */
+
+/* Section Headers */
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    color: var(--text-primary);
+}
+
+.section-header i {
+    color: var(--accent);
+    font-size: 1.2rem;
+}
+
+.section-header h4 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.section-subtitle {
+    margin-top: -10px;
+    margin-bottom: 20px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+/* Timeline Period Cards */
+.timeline-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.period-card {
+    background: var(--bg-color);
+    /* Slightly cleaner contrast against tab bg */
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s;
+}
+
+.period-card:hover {
+    transform: translateY(-2px);
+}
+
+.period-badge {
+    padding: 8px 16px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: white;
+}
+
+.morning-badge {
+    background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%);
+}
+
+.afternoon-badge {
+    background: linear-gradient(135deg, #F2994A 0%, #F2C94C 100%);
+    color: #1e293b;
+}
+
+.evening-badge {
+    background: linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%);
+}
+
+.night-badge {
+    background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+}
+
+.period-content {
+    padding: 16px;
+}
+
+/* Sliders (Overrides/Specifics) */
+.slider-group {
+    margin-bottom: 12px;
+}
+
+.mood-val-display {
+    font-weight: bold;
+    color: var(--accent);
+}
+
+/* Dropdowns in Timeline */
+.dropdown-group {
+    margin-bottom: 12px;
+}
+
+.dropdown-group label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.dropdown-group select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--secondary-bg);
+    color: var(--text-primary);
+}
+
+/* Suggestion Chips (Common) */
+.suggestions-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.chip {
+    padding: 4px 10px;
+    border-radius: 15px;
+    background: rgba(0, 0, 0, 0.05);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.chip:hover {
+    background: var(--accent);
+    color: white;
+}
+
+/* Meditation Slide In */
+.slide-in {
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    overflow: hidden;
+    max-height: 100px;
+    opacity: 1;
+}
+
+.slide-in.hidden {
+    max-height: 0;
+    opacity: 0;
+    padding: 0;
+    margin: 0;
+}

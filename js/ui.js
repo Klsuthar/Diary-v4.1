@@ -49,6 +49,8 @@ class UI {
         this.loading = document.getElementById('loading');
     }
 
+
+
     initEventListeners() {
         // Navigation
         this.navItems.forEach(item => {
@@ -80,9 +82,30 @@ class UI {
         });
 
         // Mood Category Change
+        // Mood Category Change (Dynamic Feelings for Timeline)
         document.querySelectorAll('.mood-cat').forEach(select => {
-            select.addEventListener('change', (e) => this.updateMoodFeelings(e.target));
+            select.addEventListener('change', (e) => {
+                const periodCard = e.target.closest('.period-card');
+                const feelSelect = periodCard.querySelector('.mood-feel');
+                this.updateMoodFeelings(e.target.value, feelSelect);
+            });
         });
+
+        // Toggle Meditation Duration
+        const medStatus = document.getElementById('meditation-status');
+        if (medStatus) {
+            medStatus.addEventListener('change', (e) => {
+                const group = document.getElementById('meditation-duration-group');
+                if (e.target.value === 'Yes') {
+                    group.classList.remove('hidden');
+                    // small delay to allow display:block to apply before animation
+                    requestAnimationFrame(() => group.classList.add('slide-in-active'));
+                } else {
+                    group.classList.add('hidden');
+                    document.getElementById('meditation-duration').value = "";
+                }
+            });
+        }
 
         // Textarea Counters
         document.querySelectorAll('textarea').forEach(area => {
@@ -271,19 +294,35 @@ class UI {
     // LOGIC
     // -------------------------------------------------------------------------
 
-    updateMoodFeelings(catSelect) {
-        const cat = catSelect.value;
-        const feelSelect = catSelect.parentElement.querySelector('.mood-feel');
-        feelSelect.innerHTML = '<option value="">Feeling...</option>';
-
-        if (cat && this.moodCategories[cat]) {
-            this.moodCategories[cat].forEach(feel => {
-                const opt = document.createElement('option');
-                opt.value = feel;
-                opt.innerText = feel;
-                feelSelect.appendChild(opt);
-            });
+    updateMoodFeelings(category, feelSelect) {
+        feelSelect.innerHTML = '<option value="">Select Feeling...</option>';
+        if (!category || !this.moodCategories[category]) {
+            feelSelect.disabled = true;
+            return;
         }
+        feelSelect.disabled = false;
+        this.moodCategories[category].forEach(feeling => {
+            const opt = document.createElement('option');
+            opt.value = feeling;
+            opt.innerText = feeling;
+            feelSelect.appendChild(opt);
+        });
+    }
+
+    getMoodEmoji(level) {
+        if (level >= 9) return '🌟';
+        if (level >= 7) return '😊';
+        if (level >= 5) return '😐';
+        if (level >= 3) return '😔';
+        return '😢';
+    }
+
+    appendReason(type, text) {
+        const area = document.getElementById(`${type}-reason`);
+        if (!area) return;
+        const current = area.value;
+        area.value = current ? `${current}, ${text}` : text;
+        area.dispatchEvent(new Event('input'));
     }
 
     switchTab(tabId) {
@@ -345,10 +384,15 @@ class UI {
 
         // Mood Timeline
         const getMoodParams = (period) => {
-            const block = document.querySelector(`.mood-block[data-period="${period}"]`);
-            if (!block) return { mood_level: null, mood_category: "", mood_feeling: "" };
+            const block = document.querySelector(`.period-card[data-period="${period}"]`); // Updated class from mood-block to period-card
+            if (!block) return { mood_level: 5, mood_category: "", mood_feeling: "" };
+
+            // Handle potentially different IDs if reusing code
+            // Actually our index.html uses IDs mood-slider-morning etc. 
+            // Better to select by ID strictly if they exist, or querySelector relative to block
+            // Relative is safer if IDs change
             return {
-                mood_level: Number(block.querySelector('.mood-slider').value) || null,
+                mood_level: Number(block.querySelector('.mood-slider').value) || 5, // Default 5
                 mood_category: block.querySelector('.mood-cat').value || "",
                 mood_feeling: block.querySelector('.mood-feel').value || ""
             };
@@ -364,7 +408,7 @@ class UI {
             weekday: d.toLocaleDateString('en-US', { weekday: 'long' }),
 
             environment: {
-                temperature_c: getVal('temp-min') && getVal('temp-max') ? `${getVal('temp-min')}-${getVal('temp-max')}` : getVal('temperature'), // Fallback or new format
+                temperature_c: getVal('temp-min') && getVal('temp-max') ? `${getVal('temp-min')}-${getVal('temp-max')}` : getVal('temperature'),
                 air_quality_index: getNum('aqi'),
                 humidity_percent: getNum('humidity'),
                 uv_index: getNum('uv-index'),
@@ -393,7 +437,7 @@ class UI {
 
             mental_and_emotional_health: {
                 mental_state: getVal('mental-state'),
-                mental_state_reason: getVal('mental-state-reason'),
+                mental_state_reason: getVal('mental-state-reason'), // Updated ID
                 mood_timeline: {
                     morning: getMoodParams('morning'),
                     afternoon: getMoodParams('afternoon'),

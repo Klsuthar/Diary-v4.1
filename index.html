@@ -337,154 +337,240 @@
 
             <!-- 3. Mental Tab -->
             <section id="tab-mental" class="tab-content">
-                <div class="card mental-card">
-                    <h3><i class="fas fa-brain"></i> Mental State</h3>
+
+                <!-- 1. Mental State Card -->
+                <div class="card mental-state-card">
+                    <div class="card-header">
+                        <i class="fas fa-brain"></i> <span class="card-title">Mental State</span>
+                    </div>
                     <div class="form-group">
                         <label>Overall State</label>
-                        <select id="mental-state">
-                            <option value="">Select...</option>
+                        <select id="mental-state" class="mental-dropdown">
+                            <option value="">Select state...</option>
                             <option value="Positive">Positive</option>
                             <option value="Neutral">Neutral</option>
                             <option value="Negative">Negative</option>
                             <option value="Mixed">Mixed</option>
+                            <option value="Anxious">Anxious</option>
+                            <option value="Calm">Calm</option>
+                            <option value="Stressed">Stressed</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Reason <small id="mental-reason-count">(0)</small></label>
-                        <textarea id="mental-state-reason" rows="2"></textarea>
+                        <label>Reason <small id="mental-reason-count" class="char-count">(0/500)</small></label>
+                        <textarea id="mental-state-reason" rows="3"
+                            placeholder="Describe your mental state..."></textarea>
                     </div>
-
-                    <div class="divider-h"></div>
-                    <h4>Mood Timeline</h4>
-
-                    <!-- Morning -->
-                    <div class="mood-block" data-period="morning">
-                        <h5>🌅 Morning</h5>
-                        <div class="form-group">
-                            <div class="flex-between"><label>Level</label><span class="mood-val">5</span></div>
-                            <input type="range" class="mood-slider" min="1" max="10" value="5">
-                        </div>
-                        <div class="grid-2">
-                            <select class="mood-cat">
-                                <option value="">Category...</option>
-                                <option value="positive_high_energy">Positive High Energy</option>
-                                <option value="neutral_balanced">Neutral Balanced</option>
-                                <option value="low_energy_tired">Low Energy Tired</option>
-                                <option value="negative_heavy">Negative Heavy</option>
-                                <option value="cognitive">Cognitive</option>
-                            </select>
-                            <select class="mood-feel">
-                                <option value="">Feeling...</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Afternoon -->
-                    <div class="mood-block" data-period="afternoon">
-                        <h5>☀️ Afternoon</h5>
-                        <div class="form-group">
-                            <div class="flex-between"><label>Level</label><span class="mood-val">5</span></div>
-                            <input type="range" class="mood-slider" min="1" max="10" value="5">
-                        </div>
-                        <div class="grid-2">
-                            <select class="mood-cat">
-                                <option value="">Category...</option>
-                                <option value="positive_high_energy">Positive High Energy</option>
-                                <option value="neutral_balanced">Neutral Balanced</option>
-                                <option value="low_energy_tired">Low Energy Tired</option>
-                                <option value="negative_heavy">Negative Heavy</option>
-                                <option value="cognitive">Cognitive</option>
-                            </select>
-                            <select class="mood-feel">
-                                <option value="">Feeling...</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Evening -->
-                    <div class="mood-block" data-period="evening">
-                        <h5>🌆 Evening</h5>
-                        <div class="form-group">
-                            <div class="flex-between"><label>Level</label><span class="mood-val">5</span></div>
-                            <input type="range" class="mood-slider" min="1" max="10" value="5">
-                        </div>
-                        <div class="grid-2">
-                            <select class="mood-cat">
-                                <option value="">Category...</option>
-                                <option value="positive_high_energy">Positive High Energy</option>
-                                <option value="neutral_balanced">Neutral Balanced</option>
-                                <option value="low_energy_tired">Low Energy Tired</option>
-                                <option value="negative_heavy">Negative Heavy</option>
-                                <option value="cognitive">Cognitive</option>
-                            </select>
-                            <select class="mood-feel">
-                                <option value="">Feeling...</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Night -->
-                    <div class="mood-block" data-period="night">
-                        <h5>🌙 Night</h5>
-                        <div class="form-group">
-                            <div class="flex-between"><label>Level</label><span class="mood-val">5</span></div>
-                            <input type="range" class="mood-slider" min="1" max="10" value="5">
-                        </div>
-                        <div class="grid-2">
-                            <select class="mood-cat">
-                                <option value="">Category...</option>
-                                <option value="positive_high_energy">Positive High Energy</option>
-                                <option value="neutral_balanced">Neutral Balanced</option>
-                                <option value="low_energy_tired">Low Energy Tired</option>
-                                <option value="negative_heavy">Negative Heavy</option>
-                                <option value="cognitive">Cognitive</option>
-                            </select>
-                            <select class="mood-feel">
-                                <option value="">Feeling...</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="divider-h"></div>
-
-                    <!-- Energy & Stress -->
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <div class="flex-between"><label>Energy</label><span id="energy-val">5</span></div>
-                            <input type="range" id="energy-level" min="1" max="10" value="5">
-                        </div>
-                        <div class="form-group">
-                            <div class="flex-between"><label>Stress</label><span id="stress-val">5</span></div>
-                            <input type="range" id="stress-level" min="1" max="10" value="5">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Energy Reason</label>
-                        <textarea id="energy-reason" rows="1"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Stress Reason</label>
-                        <textarea id="stress-reason" rows="1"></textarea>
-                    </div>
-
-                    <div class="divider-h"></div>
-
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label>Meditation</label>
-                            <select id="meditation-status">
-                                <option value="No">No</option>
-                                <option value="Yes">Yes</option>
-                                <option value="Na">Na</option>
-                            </select>
-                        </div>
-                        <div class="form-group hidden" id="meditation-duration-group">
-                            <label>Duration (min)</label>
-                            <input type="number" id="meditation-duration">
-                        </div>
-                    </div>
-
                 </div>
+
+                <!-- 2. Mood Timeline Section -->
+                <div class="timeline-section">
+                    <div class="section-header">
+                        <i class="fas fa-clock"></i>
+                        <h4>Mood Timeline</h4>
+                    </div>
+                    <p class="section-subtitle">Track your mood throughout the day</p>
+
+                    <div class="timeline-container">
+                        <!-- Morning -->
+                        <div class="period-card" data-period="morning">
+                            <div class="period-badge morning-badge">🌅 Morning (6-12)</div>
+                            <div class="period-content">
+                                <div class="slider-group">
+                                    <div class="flex-between">
+                                        <label>Mood Level</label>
+                                        <span class="mood-val-display" id="mood-val-morning">5 😐</span>
+                                    </div>
+                                    <input type="range" class="mood-slider" id="mood-slider-morning" min="1" max="10"
+                                        value="5">
+                                </div>
+                                <div class="dropdown-group">
+                                    <label>Category</label>
+                                    <select class="mood-cat" id="mood-cat-morning">
+                                        <option value="">Select Category...</option>
+                                        <option value="positive_high_energy">Positive High Energy</option>
+                                        <option value="neutral_balanced">Neutral Balanced</option>
+                                        <option value="low_energy_tired">Low Energy Tired</option>
+                                        <option value="negative_heavy">Negative Heavy</option>
+                                        <option value="cognitive">Cognitive</option>
+                                        <option value="mixed_other">Mixed/Other</option>
+                                    </select>
+                                </div>
+                                <div class="dropdown-group">
+                                    <label>Feeling</label>
+                                    <select class="mood-feel" id="mood-feel-morning" disabled>
+                                        <option value="">Select Category First</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Afternoon -->
+                        <div class="period-card" data-period="afternoon">
+                            <div class="period-badge afternoon-badge">☀️ Afternoon (12-6)</div>
+                            <div class="period-content">
+                                <div class="slider-group">
+                                    <div class="flex-between">
+                                        <label>Mood Level</label>
+                                        <span class="mood-val-display" id="mood-val-afternoon">5 😐</span>
+                                    </div>
+                                    <input type="range" class="mood-slider" id="mood-slider-afternoon" min="1" max="10"
+                                        value="5">
+                                </div>
+                                <div class="dropdown-group">
+                                    <label>Category</label>
+                                    <select class="mood-cat" id="mood-cat-afternoon">
+                                        <option value="">Select Category...</option>
+                                        <option value="positive_high_energy">Positive High Energy</option>
+                                        <option value="neutral_balanced">Neutral Balanced</option>
+                                        <option value="low_energy_tired">Low Energy Tired</option>
+                                        <option value="negative_heavy">Negative Heavy</option>
+                                        <option value="cognitive">Cognitive</option>
+                                        <option value="mixed_other">Mixed/Other</option>
+                                    </select>
+                                </div>
+                                <div class="dropdown-group">
+                                    <label>Feeling</label>
+                                    <select class="mood-feel" id="mood-feel-afternoon" disabled>
+                                        <option value="">Select Category First</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Evening -->
+                        <div class="period-card" data-period="evening">
+                            <div class="period-badge evening-badge">🌆 Evening (6-10)</div>
+                            <div class="period-content">
+                                <div class="slider-group">
+                                    <div class="flex-between">
+                                        <label>Mood Level</label>
+                                        <span class="mood-val-display" id="mood-val-evening">5 😐</span>
+                                    </div>
+                                    <input type="range" class="mood-slider" id="mood-slider-evening" min="1" max="10"
+                                        value="5">
+                                </div>
+                                <div class="dropdown-group">
+                                    <label>Category</label>
+                                    <select class="mood-cat" id="mood-cat-evening">
+                                        <option value="">Select Category...</option>
+                                        <option value="positive_high_energy">Positive High Energy</option>
+                                        <option value="neutral_balanced">Neutral Balanced</option>
+                                        <option value="low_energy_tired">Low Energy Tired</option>
+                                        <option value="negative_heavy">Negative Heavy</option>
+                                        <option value="cognitive">Cognitive</option>
+                                        <option value="mixed_other">Mixed/Other</option>
+                                    </select>
+                                </div>
+                                <div class="dropdown-group">
+                                    <label>Feeling</label>
+                                    <select class="mood-feel" id="mood-feel-evening" disabled>
+                                        <option value="">Select Category First</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Night -->
+                        <div class="period-card" data-period="night">
+                            <div class="period-badge night-badge">🌙 Night (10-6)</div>
+                            <div class="period-content">
+                                <div class="slider-group">
+                                    <div class="flex-between">
+                                        <label>Mood Level</label>
+                                        <span class="mood-val-display" id="mood-val-night">5 😐</span>
+                                    </div>
+                                    <input type="range" class="mood-slider" id="mood-slider-night" min="1" max="10"
+                                        value="5">
+                                </div>
+                                <div class="dropdown-group">
+                                    <label>Category</label>
+                                    <select class="mood-cat" id="mood-cat-night">
+                                        <option value="">Select Category...</option>
+                                        <option value="positive_high_energy">Positive High Energy</option>
+                                        <option value="neutral_balanced">Neutral Balanced</option>
+                                        <option value="low_energy_tired">Low Energy Tired</option>
+                                        <option value="negative_heavy">Negative Heavy</option>
+                                        <option value="cognitive">Cognitive</option>
+                                        <option value="mixed_other">Mixed/Other</option>
+                                    </select>
+                                </div>
+                                <div class="dropdown-group">
+                                    <label>Feeling</label>
+                                    <select class="mood-feel" id="mood-feel-night" disabled>
+                                        <option value="">Select Category First</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Energy Card -->
+                <div class="card energy-card">
+                    <div class="card-header">
+                        <i class="fas fa-bolt"></i> <span class="card-title">Energy Level</span>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" id="energy-level" class="energy-slider" min="1" max="10" value="5">
+                        <div class="slider-value">
+                            <span id="energy-val">5</span> ⚡ Moderate
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Reason <small id="energy-reason-count" class="char-count">(0/300)</small></label>
+                        <textarea id="energy-reason" rows="2" placeholder="What affected your energy?"></textarea>
+                        <div class="suggestions-row">
+                            <span class="chip" onclick="app.ui.appendReason('energy', 'Good sleep')">Good sleep</span>
+                            <span class="chip" onclick="app.ui.appendReason('energy', 'Exercise')">Exercise</span>
+                            <span class="chip" onclick="app.ui.appendReason('energy', 'Coffee')">Coffee</span>
+                            <span class="chip" onclick="app.ui.appendReason('energy', 'Tired')">Tired</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Stress Card -->
+                <div class="card stress-card">
+                    <div class="card-header">
+                        <i class="fas fa-tired"></i> <span class="card-title">Stress Level</span>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" id="stress-level" class="stress-slider" min="1" max="10" value="5">
+                        <div class="slider-value">
+                            <span id="stress-val">5</span> 😐 Moderate
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Reason <small id="stress-reason-count" class="char-count">(0/300)</small></label>
+                        <textarea id="stress-reason" rows="2" placeholder="What is causing stress?"></textarea>
+                        <div class="suggestions-row">
+                            <span class="chip" onclick="app.ui.appendReason('stress', 'Work')">Work</span>
+                            <span class="chip" onclick="app.ui.appendReason('stress', 'Deadline')">Deadline</span>
+                            <span class="chip" onclick="app.ui.appendReason('stress', 'Family')">Family</span>
+                            <span class="chip" onclick="app.ui.appendReason('stress', 'Health')">Health</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Meditation Card -->
+                <div class="card meditation-card">
+                    <div class="card-header">
+                        <i class="fas fa-spa"></i> <span class="card-title">Meditation</span>
+                    </div>
+                    <div class="form-group">
+                        <label>Did you meditate?</label>
+                        <select id="meditation-status">
+                            <option value="Na">Not Applicable</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <div class="form-group hidden slide-in" id="meditation-duration-group">
+                        <label>Duration (minutes)</label>
+                        <input type="number" id="meditation-duration" placeholder="e.g. 15">
+                    </div>
+                </div>
+
             </section>
 
             <!-- 4. Summary Tab -->
