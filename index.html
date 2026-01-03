@@ -173,23 +173,23 @@
                     <label class="field-label">
                         <i class="fas fa-dumbbell"></i> Body Measurements
                     </label>
-                    <div class="measurements-grid">
-                        <div class="temp-input">
+                    <div class="body-measurements-grid">
+                        <div class="measurement-item">
                             <label>Weight</label>
                             <input type="number" id="weight" placeholder="kg" step="0.1">
                             <span>kg</span>
                         </div>
-                        <div class="temp-input">
+                        <div class="measurement-item">
                             <label>Height</label>
                             <input type="number" id="height" placeholder="cm">
                             <span>cm</span>
                         </div>
-                        <div class="temp-input">
+                        <div class="measurement-item">
                             <label>Chest</label>
                             <input type="number" id="chest" placeholder="cm" step="0.1">
                             <span>cm</span>
                         </div>
-                        <div class="temp-input">
+                        <div class="measurement-item">
                             <label>Belly</label>
                             <input type="number" id="belly" placeholder="cm" step="0.1">
                             <span>cm</span>
@@ -316,7 +316,12 @@
                             <option value="Anxious">Anxious</option>
                             <option value="Calm">Calm</option>
                             <option value="Stressed">Stressed</option>
+                            <option value="Custom">Custom</option>
                         </select>
+                    </div>
+                    <div class="form-group hidden" id="custom-mental-state-group">
+                        <label>Custom Mood</label>
+                        <input type="text" id="custom-mental-state" placeholder="Enter your custom mood...">
                     </div>
                     <div class="form-group">
                         <label>Reason <small id="mental-reason-count" class="char-count">(0/500)</small></label>
@@ -346,23 +351,24 @@
                                     <input type="range" class="mood-slider" id="mood-slider-morning" min="1" max="10"
                                         value="5">
                                 </div>
-                                <div class="dropdown-group">
-                                    <label>Category</label>
-                                    <select class="mood-cat" id="mood-cat-morning">
-                                        <option value="">Select Category...</option>
-                                        <option value="positive_high_energy">Positive High Energy</option>
-                                        <option value="neutral_balanced">Neutral Balanced</option>
-                                        <option value="low_energy_tired">Low Energy Tired</option>
-                                        <option value="negative_heavy">Negative Heavy</option>
-                                        <option value="cognitive">Cognitive</option>
-                                        <option value="mixed_other">Mixed/Other</option>
-                                    </select>
-                                </div>
-                                <div class="dropdown-group">
-                                    <label>Feeling</label>
-                                    <select class="mood-feel" id="mood-feel-morning" disabled>
-                                        <option value="">Select Category First</option>
-                                    </select>
+                                <div class="mood-dropdowns-grid">
+                                    <div class="dropdown-group">
+                                        <label>Category</label>
+                                        <select class="mood-cat" id="mood-cat-morning">
+                                            <option value="">Select Category...</option>
+                                            <option value="positive_high_energy">Positive High Energy</option>
+                                            <option value="neutral_balanced">Neutral Balanced</option>
+                                            <option value="low_energy_tired">Low Energy Tired</option>
+                                            <option value="negative_heavy">Negative Heavy</option>
+                                            <option value="cognitive">Cognitive</option>
+                                        </select>
+                                    </div>
+                                    <div class="dropdown-group">
+                                        <label>Feeling</label>
+                                        <select class="mood-feel" id="mood-feel-morning" disabled>
+                                            <option value="">Select Category First</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -379,23 +385,24 @@
                                     <input type="range" class="mood-slider" id="mood-slider-afternoon" min="1" max="10"
                                         value="5">
                                 </div>
-                                <div class="dropdown-group">
-                                    <label>Category</label>
-                                    <select class="mood-cat" id="mood-cat-afternoon">
-                                        <option value="">Select Category...</option>
-                                        <option value="positive_high_energy">Positive High Energy</option>
-                                        <option value="neutral_balanced">Neutral Balanced</option>
-                                        <option value="low_energy_tired">Low Energy Tired</option>
-                                        <option value="negative_heavy">Negative Heavy</option>
-                                        <option value="cognitive">Cognitive</option>
-                                        <option value="mixed_other">Mixed/Other</option>
-                                    </select>
-                                </div>
-                                <div class="dropdown-group">
-                                    <label>Feeling</label>
-                                    <select class="mood-feel" id="mood-feel-afternoon" disabled>
-                                        <option value="">Select Category First</option>
-                                    </select>
+                                <div class="mood-dropdowns-grid">
+                                    <div class="dropdown-group">
+                                        <label>Category</label>
+                                        <select class="mood-cat" id="mood-cat-afternoon">
+                                            <option value="">Select Category...</option>
+                                            <option value="positive_high_energy">Positive High Energy</option>
+                                            <option value="neutral_balanced">Neutral Balanced</option>
+                                            <option value="low_energy_tired">Low Energy Tired</option>
+                                            <option value="negative_heavy">Negative Heavy</option>
+                                            <option value="cognitive">Cognitive</option>
+                                        </select>
+                                    </div>
+                                    <div class="dropdown-group">
+                                        <label>Feeling</label>
+                                        <select class="mood-feel" id="mood-feel-afternoon" disabled>
+                                            <option value="">Select Category First</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -412,23 +419,24 @@
                                     <input type="range" class="mood-slider" id="mood-slider-evening" min="1" max="10"
                                         value="5">
                                 </div>
-                                <div class="dropdown-group">
-                                    <label>Category</label>
-                                    <select class="mood-cat" id="mood-cat-evening">
-                                        <option value="">Select Category...</option>
-                                        <option value="positive_high_energy">Positive High Energy</option>
-                                        <option value="neutral_balanced">Neutral Balanced</option>
-                                        <option value="low_energy_tired">Low Energy Tired</option>
-                                        <option value="negative_heavy">Negative Heavy</option>
-                                        <option value="cognitive">Cognitive</option>
-                                        <option value="mixed_other">Mixed/Other</option>
-                                    </select>
-                                </div>
-                                <div class="dropdown-group">
-                                    <label>Feeling</label>
-                                    <select class="mood-feel" id="mood-feel-evening" disabled>
-                                        <option value="">Select Category First</option>
-                                    </select>
+                                <div class="mood-dropdowns-grid">
+                                    <div class="dropdown-group">
+                                        <label>Category</label>
+                                        <select class="mood-cat" id="mood-cat-evening">
+                                            <option value="">Select Category...</option>
+                                            <option value="positive_high_energy">Positive High Energy</option>
+                                            <option value="neutral_balanced">Neutral Balanced</option>
+                                            <option value="low_energy_tired">Low Energy Tired</option>
+                                            <option value="negative_heavy">Negative Heavy</option>
+                                            <option value="cognitive">Cognitive</option>
+                                        </select>
+                                    </div>
+                                    <div class="dropdown-group">
+                                        <label>Feeling</label>
+                                        <select class="mood-feel" id="mood-feel-evening" disabled>
+                                            <option value="">Select Category First</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -445,23 +453,24 @@
                                     <input type="range" class="mood-slider" id="mood-slider-night" min="1" max="10"
                                         value="5">
                                 </div>
-                                <div class="dropdown-group">
-                                    <label>Category</label>
-                                    <select class="mood-cat" id="mood-cat-night">
-                                        <option value="">Select Category...</option>
-                                        <option value="positive_high_energy">Positive High Energy</option>
-                                        <option value="neutral_balanced">Neutral Balanced</option>
-                                        <option value="low_energy_tired">Low Energy Tired</option>
-                                        <option value="negative_heavy">Negative Heavy</option>
-                                        <option value="cognitive">Cognitive</option>
-                                        <option value="mixed_other">Mixed/Other</option>
-                                    </select>
-                                </div>
-                                <div class="dropdown-group">
-                                    <label>Feeling</label>
-                                    <select class="mood-feel" id="mood-feel-night" disabled>
-                                        <option value="">Select Category First</option>
-                                    </select>
+                                <div class="mood-dropdowns-grid">
+                                    <div class="dropdown-group">
+                                        <label>Category</label>
+                                        <select class="mood-cat" id="mood-cat-night">
+                                            <option value="">Select Category...</option>
+                                            <option value="positive_high_energy">Positive High Energy</option>
+                                            <option value="neutral_balanced">Neutral Balanced</option>
+                                            <option value="low_energy_tired">Low Energy Tired</option>
+                                            <option value="negative_heavy">Negative Heavy</option>
+                                            <option value="cognitive">Cognitive</option>
+                                        </select>
+                                    </div>
+                                    <div class="dropdown-group">
+                                        <label>Feeling</label>
+                                        <select class="mood-feel" id="mood-feel-night" disabled>
+                                            <option value="">Select Category First</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -663,7 +672,7 @@
                     <div class="form-group">
                         <label>Activity Summary <small id="daily-summary-count"
                                 class="char-counter"></small></label>
-                        <textarea id="daily-summary" rows="3" placeholder="Summarize activities"></textarea>
+                        <textarea id="daily-summary" rows="9" placeholder="Summarize activities"></textarea>
                     </div>
 
                     <div class="form-group">

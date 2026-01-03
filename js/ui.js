@@ -275,6 +275,20 @@ class UI {
         });
 
         // ------------------ MENTAL TAB ------------------
+        const mentalState = document.getElementById('mental-state');
+        const customMentalGroup = document.getElementById('custom-mental-state-group');
+        if (mentalState && customMentalGroup) {
+            mentalState.addEventListener('change', (e) => {
+                if (e.target.value === 'Custom') {
+                    customMentalGroup.classList.remove('hidden');
+                } else {
+                    customMentalGroup.classList.add('hidden');
+                    document.getElementById('custom-mental-state').value = '';
+                }
+                this.debouncedSave();
+            });
+        }
+
         document.querySelectorAll('.mood-cat').forEach(select => {
             select.addEventListener('change', (e) => {
                 const periodCard = e.target.closest('.period-card');
@@ -792,8 +806,8 @@ class UI {
             },
 
             mental_and_emotional_health: {
-                mental_state: getVal('mental-state'),
-                mental_state_reason: getVal('mental-state-reason'), // Updated ID
+                mental_state: getVal('mental-state') === 'Custom' ? getVal('custom-mental-state') : getVal('mental-state'),
+                mental_state_reason: getVal('mental-state-reason'),
                 mood_timeline: {
                     morning: getMoodParams('morning'),
                     afternoon: getMoodParams('afternoon'),
@@ -917,7 +931,17 @@ class UI {
 
         // Mental
         if (data.mental_and_emotional_health) {
-            setVal('mental-state', data.mental_and_emotional_health.mental_state);
+            const mentalStateVal = data.mental_and_emotional_health.mental_state;
+            const predefinedStates = ['Positive', 'Neutral', 'Negative', 'Mixed', 'Anxious', 'Calm', 'Stressed'];
+            
+            if (predefinedStates.includes(mentalStateVal)) {
+                setVal('mental-state', mentalStateVal);
+            } else if (mentalStateVal) {
+                setVal('mental-state', 'Custom');
+                setVal('custom-mental-state', mentalStateVal);
+                document.getElementById('custom-mental-state-group')?.classList.remove('hidden');
+            }
+            
             setVal('mental-state-reason', data.mental_and_emotional_health.mental_state_reason);
 
             setVal('energy-level', data.mental_and_emotional_health.energy_level);
@@ -1074,6 +1098,7 @@ class UI {
         setIfEmpty('sleep-hours', '8:00');
         setIfEmpty('medications', 'No');
         setIfEmpty('symptoms', 'No');
+        setIfEmpty('other-notes-status', 'No');
         
         ['aqi', 'humidity', 'uv-index'].forEach(id => {
             document.getElementById(id)?.dispatchEvent(new Event('input'));

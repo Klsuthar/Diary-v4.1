@@ -1378,6 +1378,16 @@ input[type="range"]::-webkit-slider-thumb {
     color: var(--text-primary);
 }
 
+.mood-dropdowns-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.mood-dropdowns-grid .dropdown-group {
+    margin-bottom: 0;
+}
+
 /* Suggestion Chips (Common) */
 .suggestions-row {
     display: flex;
@@ -1781,4 +1791,92 @@ input[type="range"]::-webkit-slider-thumb {
 .input-error {
     border-color: #f44336 !important;
     background-color: #ffebee !important;
+}
+
+.quick-add-btn {
+    background: var(--accent);
+    color: #1e293b;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.quick-add-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+}
+
+.body-measurements-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.measurement-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.measurement-item label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.measurement-item input {
+    background: transparent;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 2px 0;
+    text-align: center;
+}
+
+.measurement-item span {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.activity-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+}
+
+.activity-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.activity-item i {
+    font-size: 1rem;
+    color: var(--accent);
+}
+
+.activity-item input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 2px;
+}
+
+.activity-item small {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
 }
