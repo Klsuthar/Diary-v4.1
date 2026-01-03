@@ -680,6 +680,17 @@ class UI {
         const getVal = (id) => document.getElementById(id)?.value || "";
         const getNum = (id) => document.getElementById(id)?.value ? Number(document.getElementById(id).value) : null;
 
+        // Mood Timeline
+        const getMoodParams = (period) => {
+            const block = document.querySelector(`.period-card[data-period="${period}"]`);
+            if (!block) return { mood_level: 5, mood_category: "", mood_feeling: "" };
+            return {
+                mood_level: Number(block.querySelector('.mood-slider').value) || 5,
+                mood_category: block.querySelector('.mood-cat').value || "",
+                mood_feeling: block.querySelector('.mood-feel').value || ""
+            };
+        };
+
         // Apps
         const getApps = () => {
             const apps = [];
@@ -689,85 +700,6 @@ class UI {
                 if (name || time) apps.push({ rank: i + 1, name, time });
             });
             return apps;
-        };
-
-        return {
-            date: this.currentDate,
-            history: {
-                mood: this.selectedMood,
-                rating: this.currentRating,
-                tags: Array.from(this.selectedTags),
-                note: getVal('history-note') // Keeping backward compatibility if needed
-            },
-            mental: {
-                morning: getMoodParams('morning'),
-                afternoon: getMoodParams('afternoon'),
-                evening: getMoodParams('evening'),
-                night: getMoodParams('night'),
-                energy_level: getNum('energy-level'),
-                energy_reason: getVal('energy-reason'),
-                stress_level: getNum('stress-level'),
-                stress_reason: getVal('stress-reason'),
-                meditation: {
-                    status: getVal('meditation-status'),
-                    duration: getNum('meditation-duration')
-                }
-            },
-            basic: {
-                temp_min: getVal('temp-min'),
-                temp_max: getVal('temp-max'),
-                weather: getVal('weather-condition'),
-                aqi: getNum('aqi'),
-                humidity: getNum('humidity'),
-                uv_index: getNum('uv-index'),
-                environment_experience: getVal('env-experience')
-            },
-            summary: {
-                personal_care: {
-                    face_name: getVal('face-name'),
-                    face_brand: getVal('face-brand'),
-                    hair_name: getVal('hair-name'),
-                    hair_brand: getVal('hair-brand'),
-                    hair_oil: getVal('hair-oil'),
-                    routine: getVal('skincare-routine')
-                },
-                diet: {
-                    breakfast: getVal('breakfast'),
-                    lunch: getVal('lunch'),
-                    dinner: getVal('dinner'),
-                    snacks: getVal('snacks')
-                },
-                activities: {
-                    tasks: getVal('tasks-completed'),
-                    travel: getVal('travel-dest'),
-                    screen_time: getVal('screen-time'),
-                    top_apps: getApps(),
-                    intent: getVal('app-usage-intent')
-                },
-                daily: {
-                    key_events: getVal('key-events'),
-                    activity_summary: getVal('daily-summary'),
-                    overall_exp: getVal('overall-exp'),
-                    other_notes: getVal('other-notes') // Assuming hidden textarea logic handled elsewhere or simple field
-                }
-            },
-            timestamp: new Date().toISOString()
-        };
-
-        // Mood Timeline
-        const getMoodParams = (period) => {
-            const block = document.querySelector(`.period-card[data-period="${period}"]`); // Updated class from mood-block to period-card
-            if (!block) return { mood_level: 5, mood_category: "", mood_feeling: "" };
-
-            // Handle potentially different IDs if reusing code
-            // Actually our index.html uses IDs mood-slider-morning etc. 
-            // Better to select by ID strictly if they exist, or querySelector relative to block
-            // Relative is safer if IDs change
-            return {
-                mood_level: Number(block.querySelector('.mood-slider').value) || 5, // Default 5
-                mood_category: block.querySelector('.mood-cat').value || "",
-                mood_feeling: block.querySelector('.mood-feel').value || ""
-            };
         };
 
         const d = new Date(this.currentDate);
