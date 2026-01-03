@@ -241,6 +241,49 @@ textarea {
     box-shadow: var(--shadow);
 }
 
+/* Collapsible Cards */
+.collapsible-card .card-header-flex {
+    cursor: pointer;
+    user-select: none;
+    margin-bottom: 0;
+    padding-bottom: 1rem;
+}
+
+.collapsible-card .card-header-flex .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.collapse-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.25rem;
+    transition: transform 0.3s;
+}
+
+.collapse-btn i {
+    font-size: 1rem;
+}
+
+.collapsible-card.collapsed .collapse-btn i {
+    transform: rotate(-90deg);
+}
+
+.collapsible-content {
+    max-height: 5000px;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.collapsible-card.collapsed .collapsible-content {
+    max-height: 0;
+    padding: 0;
+    margin: 0;
+}
+
 .card h3 {
     margin-bottom: 1.25rem;
     color: var(--accent);

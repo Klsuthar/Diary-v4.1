@@ -70,11 +70,15 @@
             <section id="tab-basic" class="tab-content active">
 
                 <!-- Environment Card -->
-                <div class="card">
-                    <div class="card-header-flex">
+                <div class="card collapsible-card">
+                    <div class="card-header-flex collapsible-header" data-section="environment">
                         <h3><i class="fas fa-cloud-sun"></i> Environment</h3>
-                        <button id="import-last-env" class="text-btn"><i class="fas fa-file-import"></i> Import Last</button>
+                        <div class="header-actions">
+                            <button class="text-btn" id="import-last-env"><i class="fas fa-file-import"></i> Import Last</button>
+                            <button class="collapse-btn"><i class="fas fa-chevron-down"></i></button>
+                        </div>
                     </div>
+                    <div class="collapsible-content" data-section="environment">
 
                     <!-- Temperature Section -->
                     <div class="form-group">
@@ -118,7 +122,7 @@
                             <i class="fas fa-wind"></i> Air Quality Index (AQI)
                         </label>
                         <div class="slider-container">
-                            <input type="range" id="aqi" min="0" max="300" value="50" class="slider">
+                            <input type="range" id="aqi" min="0" max="300" step="10" value="50" class="slider">
                             <div class="slider-value">
                                 <span id="aqi-value">50</span>
                                 <span id="aqi-label" class="aqi-good">Good</span>
@@ -161,6 +165,7 @@
                         <textarea id="env-experience" rows="2" style="resize: vertical; width: 100%;"
                             placeholder="Describe your environment experience..."></textarea>
                     </div>
+                    </div>
                 </div>
 
             </section>
@@ -169,10 +174,12 @@
             <section id="tab-body" class="tab-content">
 
                 <!-- Measurements Card -->
-                <div class="card">
-                    <label class="field-label">
-                        <i class="fas fa-dumbbell"></i> Body Measurements
-                    </label>
+                <div class="card collapsible-card">
+                    <div class="card-header-flex collapsible-header" data-section="measurements">
+                        <h3><i class="fas fa-dumbbell"></i> Body Measurements</h3>
+                        <button class="collapse-btn"><i class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" data-section="measurements">
                     <div class="body-measurements-grid">
                         <div class="measurement-item">
                             <label>Weight</label>
@@ -195,13 +202,16 @@
                             <span>cm</span>
                         </div>
                     </div>
+                    </div>
                 </div>
 
                 <!-- Sleep Card -->
-                <div class="card">
-                    <label class="field-label">
-                        <i class="fas fa-bed"></i> Sleep
-                    </label>
+                <div class="card collapsible-card">
+                    <div class="card-header-flex collapsible-header" data-section="sleep">
+                        <h3><i class="fas fa-bed"></i> Sleep</h3>
+                        <button class="collapse-btn"><i class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" data-section="sleep">
 
                     <div class="form-group">
                         <label>Duration</label>
@@ -223,13 +233,16 @@
                             placeholder="How was your sleep? Any interruptions?"></textarea>
                         <small id="sleep-desc-count" class="char-count">(0/200)</small>
                     </div>
+                    </div>
                 </div>
 
                 <!-- Activity Card -->
-                <div class="card">
-                    <label class="field-label">
-                        <i class="fas fa-running"></i> Activity
-                    </label>
+                <div class="card collapsible-card">
+                    <div class="card-header-flex collapsible-header" data-section="activity">
+                        <h3><i class="fas fa-running"></i> Activity</h3>
+                        <button class="collapse-btn"><i class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" data-section="activity">
                     <div class="activity-row">
                         <div class="activity-item">
                             <i class="fas fa-shoe-prints"></i>
@@ -247,13 +260,16 @@
                             <small>kcal</small>
                         </div>
                     </div>
+                    </div>
                 </div>
 
                 <!-- Hydration Card -->
-                <div class="card hydration-card">
-                    <label class="field-label">
-                        <i class="fas fa-tint"></i> Hydration
-                    </label>
+                <div class="card collapsible-card hydration-card">
+                    <div class="card-header-flex collapsible-header" data-section="hydration">
+                        <h3><i class="fas fa-tint"></i> Hydration</h3>
+                        <button class="collapse-btn"><i class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" data-section="hydration">
 
                     <div class="hydration-main">
                         <input type="number" id="water-intake" step="0.1" value="0.0">
@@ -277,21 +293,27 @@
                         <button class="quick-add-btn" data-add="0.5">+0.5L</button>
                         <button class="quick-add-btn" data-add="1.0">+1L</button>
                     </div>
+                    </div>
                 </div>
 
                 <!-- Medical Card -->
-                <div class="card">
-                    <label class="field-label">
-                        <i class="fas fa-pills"></i> Medications
-                    </label>
+                <div class="card collapsible-card">
+                    <div class="card-header-flex collapsible-header" data-section="medications">
+                        <h3><i class="fas fa-pills"></i> Medications</h3>
+                        <button class="collapse-btn"><i class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" data-section="medications">
                     <textarea id="medications" rows="2" style="resize: vertical; width: 100%;" placeholder="List medications taken today..."></textarea>
+                    </div>
                 </div>
 
                 <!-- Symptoms Card -->
-                <div class="card">
-                    <label class="field-label">
-                        <i class="fas fa-stethoscope"></i> Physical Symptoms
-                    </label>
+                <div class="card collapsible-card">
+                    <div class="card-header-flex collapsible-header" data-section="symptoms">
+                        <h3><i class="fas fa-stethoscope"></i> Physical Symptoms</h3>
+                        <button class="collapse-btn"><i class="fas fa-chevron-down"></i></button>
+                    </div>
+                    <div class="collapsible-content" data-section="symptoms">
                     <textarea id="symptoms" rows="2" style="resize: vertical; width: 100%;" placeholder="Any physical symptoms or discomfort?"></textarea>
                 </div>
 

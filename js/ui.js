@@ -52,9 +52,24 @@ class UI {
 
         this.initEventListeners();
 
+        // Initialize collapsible sections
+        this.initCollapsibleSections();
+
         // Initial Load
         this.loadEntry(this.currentDate);
         this.updateDateDisplay();
+    }
+
+    initCollapsibleSections() {
+        document.querySelectorAll('.collapsible-header').forEach(header => {
+            header.addEventListener('click', (e) => {
+                // Don't collapse if clicking on import button
+                if (e.target.closest('.text-btn')) return;
+                
+                const card = header.closest('.collapsible-card');
+                card.classList.toggle('collapsed');
+            });
+        });
     }
 
     initElements() {
