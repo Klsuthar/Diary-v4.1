@@ -630,6 +630,29 @@ class UI {
     // HISTORY & MULTI-SELECT
     // -------------------------------------------------------------------------
 
+    // Helper for Syntax Highlighting
+    syntaxHighlight(json) {
+        if (typeof json !== 'string') {
+            json = JSON.stringify(json, null, 2);
+        }
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+            var cls = 'number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'key';
+                } else {
+                    cls = 'string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'boolean';
+            } else if (/null/.test(match)) {
+                cls = 'null';
+            }
+            return '<span class="' + cls + '">' + match + '</span>';
+        });
+    }
+
     renderHistory(searchTerm = "", filterMood = "all") {
         const list = document.getElementById('history-list');
         list.innerHTML = "";
@@ -717,7 +740,7 @@ class UI {
                 </div>
 
                 <div class="expanded-view">
-                    <pre>${JSON.stringify(entry, null, 2)}</pre>
+                    <pre>${this.syntaxHighlight(entry)}</pre>
                     <button class="import-btn mt-2" onclick="navigator.clipboard.writeText(this.previousElementSibling.innerText); alert('Copied!');" style="padding:8px; font-size:0.8rem;">
                         <i class="fas fa-copy"></i> Copy JSON
                     </button>
