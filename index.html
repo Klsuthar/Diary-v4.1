@@ -190,75 +190,149 @@
 
             <!-- 2. Body Tab -->
             <section id="tab-body" class="tab-content">
-                <div class="card body-card">
-                    <h3><i class="fas fa-dumbbell"></i> Physical Health</h3>
 
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label>Weight (kg)</label>
-                            <input type="number" id="weight" step="0.1">
+                <!-- Measurements Card -->
+                <div class="card">
+                    <label class="field-label">
+                        <i class="fas fa-dumbbell"></i> Body Measurements
+                    </label>
+                    <div class="measurements-grid">
+                        <div class="temp-input">
+                            <label>Weight</label>
+                            <input type="number" id="weight" placeholder="kg" step="0.1">
+                            <span>kg</span>
                         </div>
-                        <div class="form-group">
-                            <label>Height (cm)</label>
-                            <input type="number" id="height">
+                        <div class="temp-input">
+                            <label>Height</label>
+                            <input type="number" id="height" placeholder="cm">
+                            <span>cm</span>
                         </div>
-                        <div class="form-group">
-                            <label>Chest (cm)</label>
-                            <input type="number" id="chest" step="0.1">
+                        <div class="temp-input">
+                            <label>Chest</label>
+                            <input type="number" id="chest" placeholder="cm" step="0.1">
+                            <span>cm</span>
                         </div>
-                        <div class="form-group">
-                            <label>Belly (cm)</label>
-                            <input type="number" id="belly" step="0.1">
+                        <div class="temp-input">
+                            <label>Belly</label>
+                            <input type="number" id="belly" placeholder="cm" step="0.1">
+                            <span>cm</span>
                         </div>
-                    </div>
-
-                    <div class="divider-h"></div>
-
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label>Sleep (Hours)</label>
-                            <input type="time" id="sleep-hours">
-                        </div>
-                        <div class="form-group">
-                            <div class="flex-between"><label>Quality</label><span id="sleep-qual-val">5</span></div>
-                            <input type="range" id="sleep-quality" min="1" max="10" value="5">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Sleep Description</label>
-                        <input type="text" id="sleep-desc">
-                    </div>
-
-                    <div class="divider-h"></div>
-
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label>Steps</label>
-                            <input type="number" id="steps-count">
-                        </div>
-                        <div class="form-group">
-                            <label>Distance (km)</label>
-                            <input type="number" id="distance-km" step="0.1">
-                        </div>
-                        <div class="form-group">
-                            <label>Calories</label>
-                            <input type="number" id="calories">
-                        </div>
-                        <div class="form-group">
-                            <label>Water (L)</label>
-                            <input type="number" id="water-intake" step="0.1">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Medications</label>
-                        <input type="text" id="medications">
-                    </div>
-                    <div class="form-group">
-                        <label>Physical Symptoms</label>
-                        <input type="text" id="symptoms">
                     </div>
                 </div>
+
+                <!-- Sleep Card -->
+                <div class="card">
+                    <label class="field-label">
+                        <i class="fas fa-bed"></i> Sleep
+                    </label>
+
+                    <div class="form-group">
+                        <label>Duration (HH:MM)</label>
+                        <input type="time" id="sleep-hours" class="time-input-large">
+                    </div>
+
+                    <div class="slider-container">
+                        <label
+                            style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:5px; display:block;">Quality</label>
+                        <input type="range" id="sleep-quality" min="1" max="10" value="5" class="slider">
+                        <div class="slider-value">
+                            <span id="sleep-qual-val">5</span>
+                            <span id="sleep-qual-label" class="qual-avg">Average 😐</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group mt-2">
+                        <textarea id="sleep-desc" rows="2"
+                            placeholder="How was your sleep? Any interruptions?"></textarea>
+                        <small id="sleep-desc-count" class="char-count">(0/200)</small>
+                    </div>
+                </div>
+
+                <!-- Activity Card -->
+                <div class="card">
+                    <label class="field-label">
+                        <i class="fas fa-running"></i> Activity
+                    </label>
+                    <div class="activity-row">
+                        <div class="activity-item">
+                            <i class="fas fa-shoe-prints"></i>
+                            <input type="number" id="steps-count" placeholder="0">
+                            <small>Steps</small>
+                        </div>
+                        <div class="activity-item">
+                            <i class="fas fa-ruler"></i>
+                            <input type="number" id="distance-km" step="0.1" placeholder="0">
+                            <small>km</small>
+                        </div>
+                        <div class="activity-item">
+                            <i class="fas fa-fire"></i>
+                            <input type="number" id="calories" placeholder="0">
+                            <small>kcal</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hydration Card -->
+                <div class="card hydration-card">
+                    <label class="field-label">
+                        <i class="fas fa-tint"></i> Hydration
+                    </label>
+
+                    <div class="hydration-main">
+                        <input type="number" id="water-intake" step="0.1" value="0.0">
+                        <span>Liters</span>
+                    </div>
+
+                    <div class="glass-indicators" id="glass-indicators">
+                        <!-- Injected by JS -->
+                        <i class="far fa-circle"></i>
+                        <i class="far fa-circle"></i>
+                        <i class="far fa-circle"></i>
+                        <i class="far fa-circle"></i>
+                        <i class="far fa-circle"></i>
+                        <i class="far fa-circle"></i>
+                        <i class="far fa-circle"></i>
+                        <i class="far fa-circle"></i>
+                    </div>
+
+                    <div class="quick-add-row">
+                        <button class="quick-add-btn" data-add="0.25">+0.25L</button>
+                        <button class="quick-add-btn" data-add="0.5">+0.5L</button>
+                        <button class="quick-add-btn" data-add="1.0">+1L</button>
+                    </div>
+                </div>
+
+                <!-- Medical Card -->
+                <div class="card">
+                    <label class="field-label">
+                        <i class="fas fa-pills"></i> Medications
+                    </label>
+                    <textarea id="medications" rows="2" placeholder="List medications taken today..."></textarea>
+                    <div class="suggestions" id="meds-suggestions">
+                        <span class="suggestion-chip">Vitamin D</span>
+                        <span class="suggestion-chip">Omega-3</span>
+                        <span class="suggestion-chip">Multivitamin</span>
+                        <span class="suggestion-chip">Calcium</span>
+                        <span class="suggestion-chip">Iron</span>
+                    </div>
+                </div>
+
+                <!-- Symptoms Card -->
+                <div class="card">
+                    <label class="field-label">
+                        <i class="fas fa-stethoscope"></i> Physical Symptoms
+                    </label>
+                    <textarea id="symptoms" rows="2" placeholder="Any physical symptoms or discomfort?"></textarea>
+                    <div class="suggestions" id="symptoms-suggestions">
+                        <span class="suggestion-chip">Headache</span>
+                        <span class="suggestion-chip">Fatigue</span>
+                        <span class="suggestion-chip">Muscle Pain</span>
+                        <span class="suggestion-chip">Stomach Ache</span>
+                        <span class="suggestion-chip">Back Pain</span>
+                        <span class="suggestion-chip">None</span>
+                    </div>
+                </div>
+
             </section>
 
             <!-- 3. Mental Tab -->

@@ -185,6 +185,64 @@ class UI {
             if (val <= 10) return { text: 'Very High', cls: 'uv-very-high' };
             return { text: 'Extreme', cls: 'uv-extreme' };
         });
+
+        // --- NEW BODY TAB LOGIC ---
+
+        // Sleep Quality Slider
+        linkSliderToLabel('sleep-quality', 'sleep-qual-label', 'sleep-qual-val', (val) => {
+            if (val <= 3) return { text: 'Poor 😴', cls: 'qual-poor' };
+            if (val <= 6) return { text: 'Average 😐', cls: 'qual-avg' };
+            if (val <= 8) return { text: 'Good 😊', cls: 'qual-good' };
+            return { text: 'Excellent 🌟', cls: 'qual-excellent' };
+        });
+
+        // Hydration Logic
+        const updateGlasses = () => {
+            const val = parseFloat(document.getElementById('water-intake').value) || 0;
+            const glassCount = Math.min(8, Math.floor(val / 0.25));
+            const glasses = document.querySelectorAll('.glass-indicators i');
+            glasses.forEach((glass, idx) => {
+                if (idx < glassCount) {
+                    glass.classList.remove('far', 'fa-circle');
+                    glass.classList.add('fas', 'fa-glass-water', 'filled');
+                } else {
+                    glass.classList.remove('fas', 'fa-glass-water', 'filled');
+                    glass.classList.add('far', 'fa-circle');
+                }
+            });
+        };
+
+        document.getElementById('water-intake').addEventListener('input', updateGlasses);
+
+        document.querySelectorAll('.quick-add-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const add = parseFloat(btn.dataset.add);
+                const input = document.getElementById('water-intake');
+                let current = parseFloat(input.value) || 0;
+                input.value = (current + add).toFixed(2);
+                updateGlasses();
+
+                // Add simple animation effect
+                btn.style.transform = "scale(0.9)";
+                setTimeout(() => btn.style.transform = "scale(1)", 100);
+            });
+        });
+
+        // Medical/Symptoms Chips
+        const setupChips = (containerId, inputId) => {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.querySelectorAll('.suggestion-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    const input = document.getElementById(inputId);
+                    const val = input.value;
+                    input.value = val ? `${val}, ${chip.innerText}` : chip.innerText;
+                });
+            });
+        };
+        setupChips('meds-suggestions', 'medications');
+        setupChips('symptoms-suggestions', 'symptoms');
+
     }
 
     // -------------------------------------------------------------------------
@@ -407,16 +465,21 @@ class UI {
             setVal('belly', data.body_measurements.belly);
         }
 
-        // Health
+        // Health (Body Tab Data Load)
         if (data.health_and_fitness) {
             setVal('sleep-hours', data.health_and_fitness.sleep_hours);
             setVal('sleep-quality', data.health_and_fitness.sleep_quality);
-            if (document.getElementById('sleep-qual-val')) document.getElementById('sleep-qual-val').innerText = data.health_and_fitness.sleep_quality || 5;
+            // Trigger slider update
+            document.getElementById('sleep-quality')?.dispatchEvent(new Event('input'));
+
             setVal('sleep-desc', data.health_and_fitness.sleep_quality_description);
             setVal('steps-count', data.health_and_fitness.steps_count);
             setVal('distance-km', data.health_and_fitness.steps_distance_km);
             setVal('calories', data.health_and_fitness.kilocalorie);
             setVal('water-intake', data.health_and_fitness.water_intake_liters);
+            // Trigger hydration visual update
+            document.getElementById('water-intake')?.dispatchEvent(new Event('input'));
+
             setVal('medications', data.health_and_fitness.medications_taken);
             setVal('symptoms', data.health_and_fitness.physical_symptoms);
         }
