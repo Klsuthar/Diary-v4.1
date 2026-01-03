@@ -70,15 +70,11 @@
             <section id="tab-basic" class="tab-content active">
 
                 <!-- Environment Card -->
-                <div class="card collapsible-card">
-                    <div class="card-header-flex collapsible-header" data-section="environment">
+                <div class="card">
+                    <div class="card-header-flex">
                         <h3><i class="fas fa-cloud-sun"></i> Environment</h3>
-                        <div class="header-actions">
-                            <button class="text-btn" id="import-last-env"><i class="fas fa-file-import"></i> Import Last</button>
-                            <button class="collapse-btn"><i class="fas fa-chevron-down"></i></button>
-                        </div>
+                        <button id="import-last-env" class="text-btn"><i class="fas fa-file-import"></i> Import Last</button>
                     </div>
-                    <div class="collapsible-content" data-section="environment">
 
                     <!-- Temperature Section -->
                     <div class="form-group">
@@ -165,7 +161,6 @@
                         <textarea id="env-experience" rows="2" style="resize: vertical; width: 100%;"
                             placeholder="Describe your environment experience..."></textarea>
                     </div>
-                    </div>
                 </div>
 
             </section>
@@ -174,12 +169,10 @@
             <section id="tab-body" class="tab-content">
 
                 <!-- Measurements Card -->
-                <div class="card collapsible-card">
-                    <div class="card-header-flex collapsible-header" data-section="measurements">
-                        <h3><i class="fas fa-dumbbell"></i> Body Measurements</h3>
-                        <button class="collapse-btn"><i class="fas fa-chevron-down"></i></button>
-                    </div>
-                    <div class="collapsible-content" data-section="measurements">
+                <div class="card">
+                    <label class="field-label">
+                        <i class="fas fa-dumbbell"></i> Body Measurements
+                    </label>
                     <div class="body-measurements-grid">
                         <div class="measurement-item">
                             <label>Weight</label>
@@ -202,16 +195,13 @@
                             <span>cm</span>
                         </div>
                     </div>
-                    </div>
                 </div>
 
                 <!-- Sleep Card -->
-                <div class="card collapsible-card">
-                    <div class="card-header-flex collapsible-header" data-section="sleep">
-                        <h3><i class="fas fa-bed"></i> Sleep</h3>
-                        <button class="collapse-btn"><i class="fas fa-chevron-down"></i></button>
-                    </div>
-                    <div class="collapsible-content" data-section="sleep">
+                <div class="card">
+                    <label class="field-label">
+                        <i class="fas fa-bed"></i> Sleep
+                    </label>
 
                     <div class="form-group">
                         <label>Duration</label>
@@ -233,16 +223,13 @@
                             placeholder="How was your sleep? Any interruptions?"></textarea>
                         <small id="sleep-desc-count" class="char-count">(0/200)</small>
                     </div>
-                    </div>
                 </div>
 
                 <!-- Activity Card -->
-                <div class="card collapsible-card">
-                    <div class="card-header-flex collapsible-header" data-section="activity">
-                        <h3><i class="fas fa-running"></i> Activity</h3>
-                        <button class="collapse-btn"><i class="fas fa-chevron-down"></i></button>
-                    </div>
-                    <div class="collapsible-content" data-section="activity">
+                <div class="card">
+                    <label class="field-label">
+                        <i class="fas fa-running"></i> Activity
+                    </label>
                     <div class="activity-row">
                         <div class="activity-item">
                             <i class="fas fa-shoe-prints"></i>
@@ -260,16 +247,13 @@
                             <small>kcal</small>
                         </div>
                     </div>
-                    </div>
                 </div>
 
                 <!-- Hydration Card -->
-                <div class="card collapsible-card hydration-card">
-                    <div class="card-header-flex collapsible-header" data-section="hydration">
-                        <h3><i class="fas fa-tint"></i> Hydration</h3>
-                        <button class="collapse-btn"><i class="fas fa-chevron-down"></i></button>
-                    </div>
-                    <div class="collapsible-content" data-section="hydration">
+                <div class="card hydration-card">
+                    <label class="field-label">
+                        <i class="fas fa-tint"></i> Hydration
+                    </label>
 
                     <div class="hydration-main">
                         <input type="number" id="water-intake" step="0.1" value="0.0">
@@ -293,27 +277,21 @@
                         <button class="quick-add-btn" data-add="0.5">+0.5L</button>
                         <button class="quick-add-btn" data-add="1.0">+1L</button>
                     </div>
-                    </div>
                 </div>
 
                 <!-- Medical Card -->
-                <div class="card collapsible-card">
-                    <div class="card-header-flex collapsible-header" data-section="medications">
-                        <h3><i class="fas fa-pills"></i> Medications</h3>
-                        <button class="collapse-btn"><i class="fas fa-chevron-down"></i></button>
-                    </div>
-                    <div class="collapsible-content" data-section="medications">
+                <div class="card">
+                    <label class="field-label">
+                        <i class="fas fa-pills"></i> Medications
+                    </label>
                     <textarea id="medications" rows="2" style="resize: vertical; width: 100%;" placeholder="List medications taken today..."></textarea>
-                    </div>
                 </div>
 
                 <!-- Symptoms Card -->
-                <div class="card collapsible-card">
-                    <div class="card-header-flex collapsible-header" data-section="symptoms">
-                        <h3><i class="fas fa-stethoscope"></i> Physical Symptoms</h3>
-                        <button class="collapse-btn"><i class="fas fa-chevron-down"></i></button>
-                    </div>
-                    <div class="collapsible-content" data-section="symptoms">
+                <div class="card">
+                    <label class="field-label">
+                        <i class="fas fa-stethoscope"></i> Physical Symptoms
+                    </label>
                     <textarea id="symptoms" rows="2" style="resize: vertical; width: 100%;" placeholder="Any physical symptoms or discomfort?"></textarea>
                 </div>
 
@@ -554,15 +532,39 @@
 
             </section>
 
-            <!-- 4. Summary Tab -->
-            <section id="tab-summary" class="tab-content">
+            <!-- 4. Diet Tab -->
+            <section id="tab-diet" class="tab-content">
+
+                <!-- Diet -->
+                <div class="card">
+                    <h3><i class="fas fa-utensils"></i> Diet & Nutrition</h3>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-coffee"></i> Breakfast</label>
+                        <input type="text" id="breakfast" placeholder="What did you have?">
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-sun"></i> Lunch</label>
+                        <input type="text" id="lunch" placeholder="What did you have?">
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-moon"></i> Dinner</label>
+                        <input type="text" id="dinner" placeholder="What did you have?">
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-cookie-bite"></i> Snacks</label>
+                        <input type="text" id="snacks" placeholder="Any snacks?">
+                    </div>
+                </div>
 
                 <!-- Personal Care -->
-                <div class="card summary-card">
+                <div class="card">
                     <div class="card-header-flex">
                         <h3><i class="fas fa-sparkles"></i> Personal Care</h3>
-                        <button id="import-last-care" class="text-btn"><i class="fas fa-file-import"></i> Import
-                            Last</button>
+                        <button id="import-last-care" class="text-btn"><i class="fas fa-file-import"></i> Import Last</button>
                     </div>
                     <div class="grid-2">
                         <div class="form-group">
@@ -592,39 +594,48 @@
                         <datalist id="hair-oil-list"></datalist>
                     </div>
                     <div class="form-group mt-2">
-                        <label>Skincare Routine <small id="skincare-routine-count"
-                                class="char-counter"></small></label>
+                        <label>Skincare Routine <small id="skincare-routine-count" class="char-counter"></small></label>
                         <textarea id="skincare-routine" placeholder="Describe routine..." rows="2"></textarea>
                     </div>
                 </div>
 
-                <!-- Diet -->
-                <div class="card summary-card">
-                    <h3><i class="fas fa-utensils"></i> Diet & Nutrition</h3>
+            </section>
+
+            <!-- 5. Summary Tab -->
+            <section id="tab-summary" class="tab-content">
+
+                <!-- Daily Summary -->
+                <div class="card">
+                    <h3><i class="fas fa-book-open"></i> Daily Summary</h3>
 
                     <div class="form-group">
-                        <label><i class="fas fa-coffee"></i> Breakfast</label>
-                        <input type="text" id="breakfast" placeholder="What did you have?">
+                        <label>Key Events <small id="key-events-count" class="char-counter"></small></label>
+                        <textarea id="key-events" rows="2" placeholder="Highlight significant moments"></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label><i class="fas fa-sun"></i> Lunch</label>
-                        <input type="text" id="lunch" placeholder="What did you have?">
+                        <label>Activity Summary <small id="daily-summary-count"
+                                class="char-counter"></small></label>
+                        <textarea id="daily-summary" rows="9" placeholder="Summarize activities"></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label><i class="fas fa-moon"></i> Dinner</label>
-                        <input type="text" id="dinner" placeholder="What did you have?">
+                        <label>Overall Experience <small id="overall-exp-count"
+                                class="char-counter"></small></label>
+                        <textarea id="overall-exp" rows="3" placeholder="How was your day?"></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label><i class="fas fa-cookie-bite"></i> Snacks</label>
-                        <input type="text" id="snacks" placeholder="Any snacks?">
+                        <label>Other Notes?</label>
+                        <select id="other-notes-status">
+                            <option value="No">No</option>
+                            <option value="Yes">Yes</option>
+                        </select>
                     </div>
                 </div>
 
                 <!-- Activities -->
-                <div class="card summary-card">
+                <div class="card">
                     <h3><i class="fas fa-calendar-check"></i> Activities & Productivity</h3>
 
                     <div class="form-group">
@@ -682,38 +693,9 @@
                     </div>
                 </div>
 
-                <!-- Daily Summary -->
-                <div class="card summary-card">
-                    <h3><i class="fas fa-book-open"></i> Daily Summary</h3>
-
-                    <div class="form-group">
-                        <label>Key Events <small id="key-events-count" class="char-counter"></small></label>
-                        <textarea id="key-events" rows="2" placeholder="Highlight significant moments"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Activity Summary <small id="daily-summary-count"
-                                class="char-counter"></small></label>
-                        <textarea id="daily-summary" rows="9" placeholder="Summarize activities"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Overall Experience <small id="overall-exp-count"
-                                class="char-counter"></small></label>
-                        <textarea id="overall-exp" rows="3" placeholder="How was your day?"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Other Notes?</label>
-                        <select id="other-notes-status">
-                            <option value="No">No</option>
-                            <option value="Yes">Yes</option>
-                        </select>
-                    </div>
-                </div>
             </section>
 
-            <!-- 5. History Tab -->
+            <!-- 6. History Tab -->
             <section id="tab-history" class="tab-content">
                 <div id="history-list" class="history-list">
                     <!-- History injected here -->
@@ -735,6 +717,10 @@
             <button class="nav-item" data-target="tab-mental">
                 <i class="fas fa-brain"></i>
                 <span>Mental</span>
+            </button>
+            <button class="nav-item" data-target="tab-diet">
+                <i class="fas fa-utensils"></i>
+                <span>Diet</span>
             </button>
             <button class="nav-item" data-target="tab-summary">
                 <i class="fas fa-clipboard-list"></i>
