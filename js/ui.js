@@ -634,8 +634,10 @@ class UI {
         this.weekdayDisplay.innerText = d.toLocaleDateString('en-US', { weekday: 'long' });
 
         // Day Counter
-        const diff = Math.ceil((d - this.referenceDate) / (1000 * 60 * 60 * 24));
-        this.dayCounter.innerText = diff > 0 ? diff : '--';
+        if (this.dayCounter) {
+            const diff = Math.ceil((d - this.referenceDate) / (1000 * 60 * 60 * 24));
+            this.dayCounter.innerText = diff > 0 ? diff : '--';
+        }
 
         this.hiddenDateInput.value = this.currentDate;
     }
@@ -1088,7 +1090,10 @@ class UI {
     setDefaultValues() {
         const setIfEmpty = (id, val) => {
             const el = document.getElementById(id);
-            if (el && !el.value) el.value = val;
+            if (el && !el.value) {
+                el.value = val;
+                el.dispatchEvent(new Event('input'));
+            }
         };
         setIfEmpty('temp-min', '15');
         setIfEmpty('temp-max', '25');
@@ -1099,10 +1104,6 @@ class UI {
         setIfEmpty('medications', 'No');
         setIfEmpty('symptoms', 'No');
         setIfEmpty('other-notes-status', 'No');
-        
-        ['aqi', 'humidity', 'uv-index'].forEach(id => {
-            document.getElementById(id)?.dispatchEvent(new Event('input'));
-        });
     }
 
     saveEntry(showToast = false) {
