@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>My Personal Diary</title>
     <meta name="description" content="Track your daily life, health, mood, and activities">
     <link rel="manifest" href="manifest.json">
@@ -13,100 +15,158 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
+
 <body>
     <div class="app-container">
         <!-- Top Bar -->
         <header class="top-bar">
             <div class="date-controls">
                 <button id="prev-date" class="icon-btn"><i class="fas fa-chevron-left"></i></button>
-                <div class="current-date-display" id="date-display">
+                <div class="current-date-display" id="date-btn">
                     <span id="display-weekday">Monday</span>
                     <span id="display-date">Oct 24, 2023</span>
+                    <input type="date" id="entry-date" class="hidden-date-input">
                 </div>
                 <button id="next-date" class="icon-btn"><i class="fas fa-chevron-right"></i></button>
             </div>
             <div class="header-actions">
-                <button id="save-btn" class="icon-btn primary-btn"><i class="fas fa-save"></i></button>
-                <button id="menu-btn" class="icon-btn"><i class="fas fa-ellipsis-v"></i></button>
+                <button id="save-btn" class="icon-btn primary-btn" title="Save Form Data Locally"><i
+                        class="fas fa-save"></i></button>
+                <button id="export-btn" class="icon-btn" title="Download Diary (Export JSON)"><i
+                        class="fas fa-file-arrow-down"></i></button>
+                <div class="dropdown">
+                    <button id="menu-btn" class="icon-btn" title="More options"><i
+                            class="fas fa-ellipsis-v"></i></button>
+                    <div class="dropdown-content" id="main-menu">
+                        <button id="menu-share"><i class="fas fa-share-alt"></i> Share Entry</button>
+                        <button id="menu-import"><i class="fas fa-file-import"></i> Import JSON</button>
+                        <button id="menu-clear"><i class="fas fa-trash-alt"></i> Clear Form</button>
+                        <div class="divider"></div>
+                        <button id="menu-backup"><i class="fas fa-download"></i> Create Backup</button>
+                        <button id="menu-restore"><i class="fas fa-upload"></i> Restore Backup</button>
+                        <div class="divider"></div>
+                        <button id="menu-refresh"><i class="fas fa-sync-alt"></i> Hard Refresh</button>
+                        <!-- <button id="menu-settings"><i class="fas fa-cog"></i> Settings</button> -->
+                    </div>
+                </div>
+            </div>
+            <!-- Multi-select Header (Hidden by default) -->
+            <div class="multi-select-header hidden" id="multi-select-header">
+                <div class="selection-info">
+                    <button id="cancel-multi" class="icon-btn"><i class="fas fa-times"></i></button>
+                    <span id="selection-count">0 selected</span>
+                </div>
+                <div class="selection-actions">
+                    <button id="export-multi" class="icon-btn" disabled><i class="fas fa-file-export"></i></button>
+                    <button id="delete-multi" class="icon-btn" disabled><i class="fas fa-trash"></i></button>
+                </div>
             </div>
         </header>
 
         <!-- Main Content Area -->
         <main class="content-area">
-            <!-- Home Tab (Environment & Basic Info) -->
-            <section id="tab-home" class="tab-content active">
-                <div class="card basic-info-card">
-                    <h3><i class="fas fa-calendar-day"></i> Basic Info</h3>
-                    <div class="form-group">
-                        <label>Date</label>
-                        <input type="date" id="entry-date">
-                    </div>
-                    <div class="stat-row">
+
+            <!-- 1. Basic Tab -->
+            <section id="tab-basic" class="tab-content active">
+                <div class="card basic-card">
+                    <h3><i class="fas fa-home"></i> Environment & Date</h3>
+                    <div class="stat-row mb-3">
                         <div class="stat-item">
                             <span class="stat-label">Day #</span>
                             <span class="stat-value" id="day-counter">--</span>
                         </div>
+                        <button id="import-last-env" class="text-btn">Import Last Day</button>
                     </div>
-                </div>
 
-                <div class="card environment-card">
-                    <h3><i class="fas fa-cloud-sun"></i> Environment</h3>
                     <div class="form-group">
                         <label>Weather Condition</label>
                         <select id="weather-condition">
                             <option value="">Select...</option>
-                            <option value="Sunny">Sunny</option>
-                            <option value="Cloudy">Cloudy</option>
-                            <option value="Rainy">Rainy</option>
-                            <option value="Stormy">Stormy</option>
-                            <option value="Snowy">Snowy</option>
-                            <option value="Windy">Windy</option>
-                            <option value="Foggy">Foggy</option>
+                            <option value="Sunny">Sunny ☀️</option>
+                            <option value="Cloudy">Cloudy ☁️</option>
+                            <option value="Rainy">Rainy 🌧️</option>
+                            <option value="Stormy">Stormy ⛈️</option>
+                            <option value="Snowy">Snowy ❄️</option>
+                            <option value="Windy">Windy 💨</option>
+                            <option value="Foggy">Foggy 🌫️</option>
                         </select>
                     </div>
+
                     <div class="form-group">
                         <label>Temperature (°C)</label>
-                        <input type="text" id="temperature" placeholder="e.g. 20-25">
+                        <input type="text" id="temperature" placeholder="e.g. 20-30">
                     </div>
+
                     <div class="grid-2">
                         <div class="form-group">
-                            <label>AQI</label>
-                            <input type="number" id="aqi" placeholder="0-500">
+                            <label>AQI (0-300)</label>
+                            <input type="number" id="aqi" min="0" max="300">
                         </div>
                         <div class="form-group">
                             <label>Humidity (%)</label>
-                            <input type="number" id="humidity" placeholder="0-100">
+                            <input type="number" id="humidity" min="0" max="100">
                         </div>
                     </div>
+
                     <div class="form-group">
-                        <label>UV Index: <span id="uv-val">0</span></label>
-                        <input type="range" id="uv-index" min="0" max="11" step="1" value="0">
+                        <div class="flex-between"><label>UV Index</label><span id="uv-val">0</span></div>
+                        <input type="range" id="uv-index" min="0" max="12" step="1" value="0">
                     </div>
+
                     <div class="form-group">
                         <label>Environment Experience</label>
-                        <input type="text" id="env-experience" placeholder="How did it feel?">
+                        <input type="text" id="env-experience" list="env-suggestions">
+                        <datalist id="env-suggestions">
+                            <option value="Pleasant weather">
+                            <option value="Hot and humid">
+                            <option value="Cold and breezy">
+                        </datalist>
                     </div>
                 </div>
             </section>
 
-            <!-- Health Tab -->
-            <section id="tab-health" class="tab-content">
-                <div class="card health-card">
-                    <h3><i class="fas fa-heartbeat"></i> Health & Fitness</h3>
+            <!-- 2. Body Tab -->
+            <section id="tab-body" class="tab-content">
+                <div class="card body-card">
+                    <h3><i class="fas fa-dumbbell"></i> Physical Health</h3>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Weight (kg)</label>
+                            <input type="number" id="weight" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>Height (cm)</label>
+                            <input type="number" id="height">
+                        </div>
+                        <div class="form-group">
+                            <label>Chest (cm)</label>
+                            <input type="number" id="chest" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>Belly (cm)</label>
+                            <input type="number" id="belly" step="0.1">
+                        </div>
+                    </div>
+
+                    <div class="divider-h"></div>
+
                     <div class="grid-2">
                         <div class="form-group">
                             <label>Sleep (Hours)</label>
                             <input type="time" id="sleep-hours">
                         </div>
                         <div class="form-group">
-                            <label>Sleep Quality (1-10)</label>
-                            <input type="number" id="sleep-quality" min="1" max="10">
+                            <div class="flex-between"><label>Quality</label><span id="sleep-qual-val">5</span></div>
+                            <input type="range" id="sleep-quality" min="1" max="10" value="5">
                         </div>
                     </div>
-                     <div class="form-group">
+                    <div class="form-group">
                         <label>Sleep Description</label>
-                        <input type="text" id="sleep-desc" placeholder="Deep, interrupted, etc.">
+                        <input type="text" id="sleep-desc">
                     </div>
+
+                    <div class="divider-h"></div>
 
                     <div class="grid-2">
                         <div class="form-group">
@@ -117,9 +177,7 @@
                             <label>Distance (km)</label>
                             <input type="number" id="distance-km" step="0.1">
                         </div>
-                    </div>
-                    <div class="grid-2">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Calories</label>
                             <input type="number" id="calories">
                         </div>
@@ -131,48 +189,21 @@
 
                     <div class="form-group">
                         <label>Medications</label>
-                        <textarea id="medications" rows="2"></textarea>
+                        <input type="text" id="medications">
                     </div>
-                     <div class="form-group">
+                    <div class="form-group">
                         <label>Physical Symptoms</label>
-                        <textarea id="symptoms" rows="2"></textarea>
-                    </div>
-
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label>Energy (1-10)</label>
-                            <input type="number" id="energy-level" min="1" max="10">
-                        </div>
-                        <div class="form-group">
-                            <label>Stress (1-10)</label>
-                            <input type="number" id="stress-level" min="1" max="10">
-                        </div>
-                    </div>
-                     <div class="form-group">
-                        <label>Reason for Energy/Stress</label>
-                       <input type="text" id="energy-stress-reason">
-                    </div>
-
-                     <div class="accordion">
-                        <div class="accordion-header">Body Measurements <i class="fas fa-chevron-down"></i></div>
-                        <div class="accordion-content">
-                            <div class="grid-2">
-                                <div class="form-group"><label>Weight (kg)</label><input type="number" id="weight" step="0.1"></div>
-                                <div class="form-group"><label>Height (cm)</label><input type="number" id="height"></div>
-                                <div class="form-group"><label>Chest</label><input type="number" id="chest" step="0.1"></div>
-                                <div class="form-group"><label>Belly</label><input type="number" id="belly" step="0.1"></div>
-                            </div>
-                        </div>
+                        <input type="text" id="symptoms">
                     </div>
                 </div>
             </section>
 
-            <!-- Mental Tab -->
+            <!-- 3. Mental Tab -->
             <section id="tab-mental" class="tab-content">
                 <div class="card mental-card">
-                    <h3><i class="fas fa-brain"></i> Mental & Emotional</h3>
+                    <h3><i class="fas fa-brain"></i> Mental State</h3>
                     <div class="form-group">
-                        <label>Overall Mental State</label>
+                        <label>Overall State</label>
                         <select id="mental-state">
                             <option value="">Select...</option>
                             <option value="Positive">Positive</option>
@@ -182,194 +213,240 @@
                         </select>
                     </div>
                     <div class="form-group">
-                         <label>Reason</label>
-                         <textarea id="mental-state-reason" rows="2"></textarea>
+                        <label>Reason <small id="mental-reason-count">(0)</small></label>
+                        <textarea id="mental-state-reason" rows="2"></textarea>
                     </div>
 
+                    <div class="divider-h"></div>
                     <h4>Mood Timeline</h4>
-                    <div class="mood-timeline">
-                        <!-- Morning -->
-                        <div class="mood-block">
-                            <h5>🌅 Morning</h5>
-                            <div class="grid-2">
-                                <input type="number" class="mood-level" data-period="morning" placeholder="Lvl (1-10)" min="1" max="10">
-                                <input type="text" class="mood-feeling" data-period="morning" placeholder="Feeling">
-                            </div>
+
+                    <!-- Morning -->
+                    <div class="mood-block" data-period="morning">
+                        <h5>🌅 Morning</h5>
+                        <div class="form-group">
+                            <div class="flex-between"><label>Level</label><span class="mood-val">5</span></div>
+                            <input type="range" class="mood-slider" min="1" max="10" value="5">
                         </div>
-                        <!-- Afternoon -->
-                        <div class="mood-block">
-                            <h5>☀️ Afternoon</h5>
-                             <div class="grid-2">
-                                <input type="number" class="mood-level" data-period="afternoon" placeholder="Lvl (1-10)" min="1" max="10">
-                                <input type="text" class="mood-feeling" data-period="afternoon" placeholder="Feeling">
-                            </div>
-                        </div>
-                        <!-- Evening -->
-                        <div class="mood-block">
-                            <h5>🌆 Evening</h5>
-                             <div class="grid-2">
-                                <input type="number" class="mood-level" data-period="evening" placeholder="Lvl (1-10)" min="1" max="10">
-                                <input type="text" class="mood-feeling" data-period="evening" placeholder="Feeling">
-                            </div>
-                        </div>
-                        <!-- Night -->
-                        <div class="mood-block">
-                            <h5>🌙 Night</h5>
-                             <div class="grid-2">
-                                <input type="number" class="mood-level" data-period="night" placeholder="Lvl (1-10)" min="1" max="10">
-                                <input type="text" class="mood-feeling" data-period="night" placeholder="Feeling">
-                            </div>
+                        <div class="grid-2">
+                            <select class="mood-cat">
+                                <option value="">Category...</option>
+                                <option value="positive_high_energy">Positive High Energy</option>
+                                <option value="neutral_balanced">Neutral Balanced</option>
+                                <option value="low_energy_tired">Low Energy Tired</option>
+                                <option value="negative_heavy">Negative Heavy</option>
+                                <option value="cognitive">Cognitive</option>
+                            </select>
+                            <select class="mood-feel">
+                                <option value="">Feeling...</option>
+                            </select>
                         </div>
                     </div>
 
-                    <div class="form-group mt-3">
-                        <label>Meditation</label>
-                        <select id="meditation-status">
+                    <!-- Afternoon -->
+                    <div class="mood-block" data-period="afternoon">
+                        <h5>☀️ Afternoon</h5>
+                        <div class="form-group">
+                            <div class="flex-between"><label>Level</label><span class="mood-val">5</span></div>
+                            <input type="range" class="mood-slider" min="1" max="10" value="5">
+                        </div>
+                        <div class="grid-2">
+                            <select class="mood-cat">
+                                <option value="">Category...</option>
+                                <option value="positive_high_energy">Positive High Energy</option>
+                                <option value="neutral_balanced">Neutral Balanced</option>
+                                <option value="low_energy_tired">Low Energy Tired</option>
+                                <option value="negative_heavy">Negative Heavy</option>
+                                <option value="cognitive">Cognitive</option>
+                            </select>
+                            <select class="mood-feel">
+                                <option value="">Feeling...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Evening -->
+                    <div class="mood-block" data-period="evening">
+                        <h5>🌆 Evening</h5>
+                        <div class="form-group">
+                            <div class="flex-between"><label>Level</label><span class="mood-val">5</span></div>
+                            <input type="range" class="mood-slider" min="1" max="10" value="5">
+                        </div>
+                        <div class="grid-2">
+                            <select class="mood-cat">
+                                <option value="">Category...</option>
+                                <option value="positive_high_energy">Positive High Energy</option>
+                                <option value="neutral_balanced">Neutral Balanced</option>
+                                <option value="low_energy_tired">Low Energy Tired</option>
+                                <option value="negative_heavy">Negative Heavy</option>
+                                <option value="cognitive">Cognitive</option>
+                            </select>
+                            <select class="mood-feel">
+                                <option value="">Feeling...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Night -->
+                    <div class="mood-block" data-period="night">
+                        <h5>🌙 Night</h5>
+                        <div class="form-group">
+                            <div class="flex-between"><label>Level</label><span class="mood-val">5</span></div>
+                            <input type="range" class="mood-slider" min="1" max="10" value="5">
+                        </div>
+                        <div class="grid-2">
+                            <select class="mood-cat">
+                                <option value="">Category...</option>
+                                <option value="positive_high_energy">Positive High Energy</option>
+                                <option value="neutral_balanced">Neutral Balanced</option>
+                                <option value="low_energy_tired">Low Energy Tired</option>
+                                <option value="negative_heavy">Negative Heavy</option>
+                                <option value="cognitive">Cognitive</option>
+                            </select>
+                            <select class="mood-feel">
+                                <option value="">Feeling...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="divider-h"></div>
+
+                    <!-- Energy & Stress -->
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <div class="flex-between"><label>Energy</label><span id="energy-val">5</span></div>
+                            <input type="range" id="energy-level" min="1" max="10" value="5">
+                        </div>
+                        <div class="form-group">
+                            <div class="flex-between"><label>Stress</label><span id="stress-val">5</span></div>
+                            <input type="range" id="stress-level" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Energy Reason</label>
+                        <textarea id="energy-reason" rows="1"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Stress Reason</label>
+                        <textarea id="stress-reason" rows="1"></textarea>
+                    </div>
+
+                    <div class="divider-h"></div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Meditation</label>
+                            <select id="meditation-status">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="Na">Na</option>
+                            </select>
+                        </div>
+                        <div class="form-group hidden" id="meditation-duration-group">
+                            <label>Duration (min)</label>
+                            <input type="number" id="meditation-duration">
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- 4. Summary Tab -->
+            <section id="tab-summary" class="tab-content">
+
+                <!-- Personal Care -->
+                <div class="card summary-card">
+                    <div class="card-header-flex">
+                        <h3><i class="fas fa-sparkles"></i> Personal Care</h3>
+                        <button id="import-last-care" class="text-btn">Import Last</button>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group"><input type="text" id="face-name" placeholder="Face Product"></div>
+                        <div class="form-group"><input type="text" id="face-brand" placeholder="Brand"></div>
+                        <div class="form-group"><input type="text" id="hair-name" placeholder="Hair Product"></div>
+                        <div class="form-group"><input type="text" id="hair-brand" placeholder="Brand"></div>
+                    </div>
+                    <div class="form-group mt-1"><input type="text" id="hair-oil" placeholder="Hair Oil"></div>
+                    <div class="form-group mt-1"><textarea id="skincare-routine" placeholder="Skincare Routine"
+                            rows="2"></textarea></div>
+                </div>
+
+                <!-- Diet -->
+                <div class="card summary-card">
+                    <h3><i class="fas fa-utensils"></i> Diet</h3>
+                    <div class="form-group"><input type="text" id="breakfast" placeholder="Breakfast"></div>
+                    <div class="form-group"><input type="text" id="lunch" placeholder="Lunch"></div>
+                    <div class="form-group"><input type="text" id="dinner" placeholder="Dinner"></div>
+                    <div class="form-group"><input type="text" id="snacks" placeholder="Additional / Snacks"></div>
+                </div>
+
+                <!-- Activities -->
+                <div class="card summary-card">
+                    <h3><i class="fas fa-tasks"></i> Activities & Apps</h3>
+                    <div class="form-group">
+                        <textarea id="tasks-completed" placeholder="Tasks Completed Today" rows="2"></textarea>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group"><input type="text" id="travel-dest" placeholder="Travel Destination">
+                        </div>
+                        <div class="form-group"><input type="text" id="screen-time" placeholder="Screen Time (HH:MM)">
+                        </div>
+                    </div>
+
+                    <h5 class="mt-2">Top 5 Apps</h5>
+                    <div id="top-apps-container">
+                        <div class="app-row flex-row"><span class="rank">1</span><input type="text" class="app-name"
+                                placeholder="App Name"><input type="text" class="app-time" placeholder="Time"></div>
+                        <div class="app-row flex-row"><span class="rank">2</span><input type="text" class="app-name"
+                                placeholder="App Name"><input type="text" class="app-time" placeholder="Time"></div>
+                        <div class="app-row flex-row"><span class="rank">3</span><input type="text" class="app-name"
+                                placeholder="App Name"><input type="text" class="app-time" placeholder="Time"></div>
+                        <div class="app-row flex-row"><span class="rank">4</span><input type="text" class="app-name"
+                                placeholder="App Name"><input type="text" class="app-time" placeholder="Time"></div>
+                        <div class="app-row flex-row"><span class="rank">5</span><input type="text" class="app-name"
+                                placeholder="App Name"><input type="text" class="app-time" placeholder="Time"></div>
+                    </div>
+                    <div class="form-group mt-1">
+                        <input type="text" id="app-usage-intent" placeholder="App Usage Intent">
+                    </div>
+                </div>
+
+                <!-- Daily Summary -->
+                <div class="card summary-card">
+                    <h3><i class="fas fa-pencil-alt"></i> Daily Summary</h3>
+                    <div class="form-group">
+                        <label>Key Events <small id="key-events-count">(0)</small></label>
+                        <textarea id="key-events" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Activity Summary <small id="daily-summary-count">(0)</small></label>
+                        <textarea id="daily-summary" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Overall Experience <small id="overall-exp-count">(0)</small></label>
+                        <textarea id="overall-exp" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Other Notes?</label>
+                        <select id="other-notes-status">
                             <option value="No">No</option>
                             <option value="Yes">Yes</option>
                         </select>
                     </div>
-                    <div class="form-group hidden" id="meditation-duration-group">
-                        <label>Duration (mins)</label>
-                        <input type="number" id="meditation-duration">
-                    </div>
                 </div>
             </section>
 
-             <!-- Personal Care Tab -->
-             <section id="tab-care" class="tab-content">
-                <div class="card care-card">
-                    <h3><i class="fas fa-sparkles"></i> Personal Care</h3>
-                    <div class="form-group">
-                        <label>Face Product</label>
-                        <input type="text" id="face-name" placeholder="Name">
-                        <input type="text" id="face-brand" placeholder="Brand" class="mt-1">
-                    </div>
-                    <div class="form-group">
-                        <label>Hair Product</label>
-                        <input type="text" id="hair-name" placeholder="Name">
-                        <input type="text" id="hair-brand" placeholder="Brand" class="mt-1">
-                    </div>
-                     <div class="form-group">
-                        <label>Hair Oil</label>
-                        <input type="text" id="hair-oil">
-                    </div>
-                     <div class="form-group">
-                        <label>Skincare Routine</label>
-                        <textarea id="skincare-routine" rows="2"></textarea>
-                    </div>
-                </div>
-             </section>
-
-            <!-- Diet Tab -->
-            <section id="tab-diet" class="tab-content">
-                <div class="card diet-card">
-                    <h3><i class="fas fa-utensils"></i> Diet & Nutrition</h3>
-                    <div class="form-group">
-                        <label>Breakfast</label>
-                        <textarea id="breakfast" rows="2"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Lunch</label>
-                        <textarea id="lunch" rows="2"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Dinner</label>
-                        <textarea id="dinner" rows="2"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Snacks / Additional</label>
-                        <textarea id="snacks" rows="2"></textarea>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Apps & Activities Tab -->
-            <section id="tab-apps" class="tab-content">
-                <div class="card apps-card">
-                    <h3><i class="fas fa-mobile-alt"></i> Activities</h3>
-                    <div class="form-group">
-                        <label>Tasks Completed</label>
-                        <textarea id="tasks-completed" rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Travel Destination</label>
-                        <input type="text" id="travel-dest">
-                    </div>
-                     <div class="form-group">
-                        <label>Screen Time</label>
-                        <input type="text" id="screen-time" placeholder="e.g. 5h 30m">
-                    </div>
-                    
-                    <h4>Top 5 Apps</h4>
-                    <div id="top-apps-container">
-                        <!-- Generated by JS 1-5 -->
-                         <div class="grid-2 app-row">
-                            <input type="text" class="app-name" placeholder="App 1 Name">
-                            <input type="text" class="app-time" placeholder="Time">
-                        </div>
-                        <div class="grid-2 app-row">
-                            <input type="text" class="app-name" placeholder="App 2 Name">
-                            <input type="text" class="app-time" placeholder="Time">
-                        </div>
-                         <div class="grid-2 app-row">
-                            <input type="text" class="app-name" placeholder="App 3 Name">
-                            <input type="text" class="app-time" placeholder="Time">
-                        </div>
-                         <div class="grid-2 app-row">
-                            <input type="text" class="app-name" placeholder="App 4 Name">
-                            <input type="text" class="app-time" placeholder="Time">
-                        </div>
-                         <div class="grid-2 app-row">
-                            <input type="text" class="app-name" placeholder="App 5 Name">
-                            <input type="text" class="app-time" placeholder="Time">
-                        </div>
-                    </div>
-                     <div class="form-group mt-2">
-                        <label>App Usage Intent</label>
-                        <input type="text" id="app-usage-intent">
-                    </div>
-                </div>
-            </section>
-
-            <!-- Notes Tab -->
-            <section id="tab-notes" class="tab-content">
-                <div class="card notes-card">
-                    <h3><i class="fas fa-sticky-note"></i> Notes & Summary</h3>
-                    <div class="form-group">
-                        <label>Key Events</label>
-                        <textarea id="key-events" rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Daily Summary <small id="summary-count">(0 chars)</small></label>
-                        <textarea id="daily-summary" rows="4"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Overall Experience <small id="exp-count">(0 chars)</small></label>
-                        <textarea id="overall-exp" rows="4"></textarea>
-                    </div>
-                     <div class="form-group">
-                        <label>Other Notes Status</label>
-                        <input type="text" id="other-notes-status">
-                    </div>
-                </div>
-            </section>
-
-            <!-- History Tab -->
+            <!-- 5. History Tab -->
             <section id="tab-history" class="tab-content">
-                 <div class="card history-header-card">
-                    <h3><i class="fas fa-history"></i> History</h3>
+                <div class="card history-header-card">
                     <div class="search-bar">
                         <input type="text" id="search-history" placeholder="Search entries...">
                         <i class="fas fa-search"></i>
                     </div>
-                 </div>
+                    <small style="display:block; margin-top:5px; color:var(--text-secondary)">Long press to select
+                        multiple</small>
+                </div>
                 <div id="history-list" class="history-list">
-                    <!-- History items injected here -->
-                    <div class="empty-state">
-                        <i class="fas fa-book-open"></i>
-                        <p>No entries found.</p>
-                    </div>
+                    <!-- History injected here -->
                 </div>
             </section>
 
@@ -377,39 +454,40 @@
 
         <!-- Bottom Navigation -->
         <nav class="bottom-nav">
-            <button class="nav-item active" data-target="tab-home">
+            <button class="nav-item active" data-target="tab-basic">
                 <i class="fas fa-home"></i>
                 <span>Basic</span>
             </button>
-            <button class="nav-item" data-target="tab-health">
-                <i class="fas fa-heartbeat"></i>
-                <span>Health</span>
+            <button class="nav-item" data-target="tab-body">
+                <i class="fas fa-dumbbell"></i>
+                <span>Body</span>
             </button>
             <button class="nav-item" data-target="tab-mental">
                 <i class="fas fa-brain"></i>
                 <span>Mental</span>
             </button>
-             <button class="nav-item" data-target="tab-care">
-                <i class="fas fa-sparkles"></i>
-                <span>Care</span>
+            <button class="nav-item" data-target="tab-summary">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Summary</span>
             </button>
-            <button class="nav-item" data-target="tab-diet">
-                <i class="fas fa-utensils"></i>
-                <span>Diet</span>
-            </button>
-            <button class="nav-item" data-target="tab-apps">
-                <i class="fas fa-mobile-alt"></i>
-                <span>Apps</span>
-            </button>
-            <button class="nav-item" data-target="tab-notes">
-                <i class="fas fa-sticky-note"></i>
-                <span>Notes</span>
-            </button>
-             <button class="nav-item" data-target="tab-history">
-                <i class="fas fa-history"></i>
+            <button class="nav-item" data-target="tab-history">
+                <i class="fas fa-book"></i>
                 <span>History</span>
             </button>
         </nav>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast hidden">Item Saved</div>
+
+        <!-- Loading Overlay -->
+        <div id="loading" class="loading-overlay hidden">
+            <div class="spinner"></div>
+        </div>
+
+        <!-- Import Data Input (Hidden) -->
+        <input type="file" id="import-file" accept=".json" style="display:none" multiple>
+        <input type="file" id="import-backup-file" accept=".json" style="display:none">
+
     </div>
 
     <!-- Scripts -->
@@ -417,4 +495,5 @@
     <script src="js/ui.js"></script>
     <script src="js/app.js"></script>
 </body>
+
 </html>
