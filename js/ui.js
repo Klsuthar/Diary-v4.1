@@ -118,15 +118,37 @@ class UI {
         document.getElementById('import-backup-file').addEventListener('change', (e) => this.handleFileImport(e, true));
 
         // Multi-select Actions
-        document.getElementById('cancel-multi').addEventListener('click', () => this.exitMultiSelect());
-        this.exportMultiBtn.addEventListener('click', () => this.exportSelected());
-        this.deleteMultiBtn.addEventListener('click', () => this.deleteSelected());
+        document.getElementById('multi-cancel-btn').addEventListener('click', () => this.exitMultiSelect());
+        document.getElementById('multi-export-btn').addEventListener('click', () => this.exportSelected());
+        document.getElementById('multi-delete-btn').addEventListener('click', () => this.deleteSelected());
 
-        // Meditation
-        document.getElementById('meditation-status').addEventListener('change', (e) => {
-            const group = document.getElementById('meditation-duration-group');
-            if (e.target.value === 'Yes') group.classList.remove('hidden');
-            else group.classList.add('hidden');
+        // Search & Filter Listeners
+        const searchInput = document.getElementById('history-search');
+        const searchClear = document.getElementById('search-clear');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const val = e.target.value;
+                searchClear.classList.toggle('hidden', !val);
+                this.renderHistory(val, this.currentFilter || 'all');
+            });
+            searchClear.addEventListener('click', () => {
+                searchInput.value = '';
+                searchClear.classList.add('hidden');
+                this.renderHistory('', this.currentFilter || 'all');
+            });
+        }
+
+        // Filter Chips
+        document.querySelectorAll('.filter-chip').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // UI toggle
+                document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                this.currentFilter = btn.dataset.filter;
+                this.renderHistory(searchInput.value, this.currentFilter);
+            });
         });
 
         // Import Last Day Buttons
@@ -272,7 +294,7 @@ class UI {
         document.querySelector(`.nav-item[data-target="${tabId}"]`).classList.add('active');
 
         if (tabId === 'tab-history') {
-            this.renderHistory();
+            this.renderHistory(document.getElementById('history-search')?.value || '', this.currentFilter || 'all');
         }
     }
 
@@ -480,7 +502,7 @@ class UI {
             // Trigger hydration visual update
             document.getElementById('water-intake')?.dispatchEvent(new Event('input'));
 
-            setVal('medications', data.health_and_fitness.medications_taken);
+            setVal('medications', data.health_and_and_fitness.medications_taken);
             setVal('symptoms', data.health_and_fitness.physical_symptoms);
         }
 
@@ -564,7 +586,7 @@ class UI {
 
         if (data.additional_notes) {
             setVal('key-events', data.additional_notes.key_events);
-            setVal('other-notes-status', data.additional_notes.other_note_status);
+            setVal('other-note-status', data.additional_notes.other_note_status);
         }
         setVal('daily-summary', data.daily_activity_summary);
         setVal('overall-exp', data.overall_day_experience);
@@ -608,94 +630,145 @@ class UI {
     // HISTORY & MULTI-SELECT
     // -------------------------------------------------------------------------
 
-    renderHistory() {
+    renderHistory(searchTerm = "", filterMood = "all") {
         const list = document.getElementById('history-list');
         list.innerHTML = "";
         const entries = this.storage.getEntries();
-        const sorted = Object.keys(entries).sort((a, b) => new Date(b) - new Date(a));
+        let sortedDates = Object.keys(entries).sort((a, b) => new Date(b) - new Date(a));
 
-        if (sorted.length === 0) {
-            list.innerHTML = `<div class="empty-state"><p>No entries yet.</p></div>`;
+        // Filter Logic
+        if (searchTerm) {
+            const lower = searchTerm.toLowerCase();
+            sortedDates = sortedDates.filter(date => {
+                const entry = entries[date];
+                const text = JSON.stringify(entry).toLowerCase();
+                return text.includes(lower);
+            });
+        }
+
+        if (filterMood !== "all") {
+            sortedDates = sortedDates.filter(date => {
+                const entry = entries[date];
+                const moodScore = entry.mental_and_emotional_health?.mood_timeline?.morning?.mood_level || 5;
+                if (filterMood === 'happy' && moodScore >= 7) return true;
+                if (filterMood === 'week') {
+                    const d = new Date(date);
+                    const now = new Date();
+                    const diffTime = Math.abs(now - d);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    return diffDays <= 7;
+                }
+                if (filterMood === 'complete') {
+                    // Simple check for now
+                    return entry.daily_activity_summary && entry.daily_activity_summary.length > 0;
+                }
+                return false;
+            });
+        }
+
+        if (sortedDates.length === 0) {
+            list.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-book-open" style="font-size:3rem; color:var(--text-secondary); margin-bottom:1rem;"></i>
+                    <h3>No entries found</h3>
+                    <p>Try adjusting filters or add a new entry.</p>
+                </div>`;
             return;
         }
 
-        sorted.forEach(date => {
+        sortedDates.forEach(date => {
             const entry = entries[date];
             const div = document.createElement('div');
-            div.className = 'history-item';
+            div.className = `history-card ${this.selectedEntries.has(date) ? 'selected' : ''} ${this.multiSelectMode ? 'multi-mode' : ''}`;
             div.dataset.date = date;
 
-            // Preview
-            const summary = entry.daily_activity_summary || "No summary";
-            const mood = entry.mental_and_emotional_health?.mood_timeline?.morning?.mood_level || 5;
-            let moodColor = '#f59e0b';
-            if (mood > 7) moodColor = '#22c55e';
-            else if (mood < 5) moodColor = '#ef4444';
+            // Mood & Summary
+            const moodScore = entry.mental_and_emotional_health?.mood_timeline?.morning?.mood_level || 5;
+            let moodEmoji = '😐';
+            if (moodScore >= 9) moodEmoji = '🌟';
+            else if (moodScore >= 7) moodEmoji = '😊';
+            else if (moodScore <= 2) moodEmoji = '😢';
+            else if (moodScore <= 4) moodEmoji = '😔';
+
+            const summary = entry.daily_activity_summary || "No summary provided...";
+
+            // Check status (simplified)
+            const isComplete = entry.daily_activity_summary && entry.daily_activity_summary.length > 10;
+            const statusHtml = isComplete
+                ? `<span class="entry-status status-complete"><i class="fas fa-check-circle"></i> Complete</span>`
+                : `<span class="entry-status status-incomplete"><i class="fas fa-exclamation-circle"></i> Incomplete</span>`;
 
             div.innerHTML = `
-                <div class="history-checkbox ${this.multiSelectMode ? '' : 'hidden'}">
-                    <i class="far fa-square"></i>
+                <div class="select-checkbox"></div>
+                
+                <div class="entry-header">
+                    <div class="date-badge"><i class="fas fa-calendar-alt"></i> ${date}</div>
+                    <div class="mood-indicator" title="Mood Level: ${moodScore}">${moodEmoji}</div>
                 </div>
-                <div class="history-content">
-                    <div class="history-top">
-                        <div class="history-date">
-                             <span class="mood-dot" style="background-color:${moodColor}"></span>
-                             ${date} <small>(${entry.weekday})</small>
-                        </div>
-                        <div class="history-actions-row ${this.multiSelectMode ? 'hidden' : ''}">
-                             <button class="icon-btn-sm" onclick="app.ui.loadHistory('${date}')" title="Edit"><i class="fas fa-edit"></i></button>
-                             <button class="icon-btn-sm" onclick="app.ui.exportOne('${date}')" title="Export"><i class="fas fa-download"></i></button>
-                             <button class="icon-btn-sm" onclick="app.ui.deleteOne('${date}')" title="Delete"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                    <div class="history-preview">${summary.substring(0, 50)}${summary.length > 50 ? '...' : ''}</div>
+                
+                <div class="entry-preview">${summary.substring(0, 60)}${summary.length > 60 ? '...' : ''}</div>
+                ${statusHtml}
+                
+                <div class="action-row">
+                    <button class="icon-action-btn" onclick="app.ui.loadHistory('${date}')" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button class="icon-action-btn" onclick="app.ui.exportOne('${date}')" title="Export JSON"><i class="fas fa-download"></i></button>
+                    <button class="icon-action-btn expand-btn" title="View Data"><i class="fas fa-code"></i></button>
+                    <button class="icon-action-btn delete-btn" onclick="app.ui.deleteOne('${date}')" title="Delete"><i class="fas fa-trash"></i></button>
+                </div>
+
+                <div class="expanded-view">
+                    <pre>${JSON.stringify(entry, null, 2)}</pre>
+                    <button class="import-btn mt-2" onclick="navigator.clipboard.writeText(this.previousElementSibling.innerText); alert('Copied!');" style="padding:8px; font-size:0.8rem;">
+                        <i class="fas fa-copy"></i> Copy JSON
+                    </button>
                 </div>
             `;
 
-            // Events
+            // Expand Toggle
+            div.querySelector('.expand-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const view = div.querySelector('.expanded-view');
+                view.classList.toggle('show');
+            });
+
+            // Card Click (Selection or Edit)
             div.addEventListener('click', (e) => {
-                // If clicking buttons, don't trigger selection
-                if (e.target.closest('button')) return;
+                if (e.target.closest('button') || e.target.closest('.expanded-view')) return;
 
                 if (this.multiSelectMode) {
                     this.toggleSelection(date, div);
                 } else {
-                    // Regular click to edit
+                    // Open edit (default action)
                     this.loadHistory(date);
                 }
             });
 
             // Long Press
             div.addEventListener('mousedown', () => {
-                this.longPressTimer = setTimeout(() => this.enterMultiSelect(date, div), 800);
+                this.longPressTimer = setTimeout(() => this.enterMultiSelect(date, div), 600);
             });
             div.addEventListener('touchstart', () => {
-                this.longPressTimer = setTimeout(() => this.enterMultiSelect(date, div), 800);
-            });
+                this.longPressTimer = setTimeout(() => this.enterMultiSelect(date, div), 600);
+            }, { passive: true });
             ['mouseup', 'mouseleave', 'touchend', 'touchmove'].forEach(evt => {
                 div.addEventListener(evt, () => clearTimeout(this.longPressTimer));
             });
 
             list.appendChild(div);
         });
-
-        // Re-apply selection state if render happens during multi-select
-        if (this.multiSelectMode) {
-            this.selectedEntries.forEach(d => {
-                const el = list.querySelector(`.history-item[data-date="${d}"]`);
-                if (el) this.markSelected(el, true);
-            });
-        }
     }
 
     enterMultiSelect(initialDate, element) {
         if (this.multiSelectMode) return;
         this.multiSelectMode = true;
-        this.multiHeader.classList.remove('hidden');
-        document.querySelectorAll('.history-checkbox').forEach(el => el.classList.remove('hidden'));
-        document.querySelectorAll('.history-actions-row').forEach(el => el.classList.add('hidden'));
 
-        // Vibrate
+        // Show Bottom Bar
+        const bar = document.getElementById('multi-action-bar');
+        bar.classList.remove('hidden');
+
+        // Shift UI
+        document.querySelectorAll('.history-card').forEach(el => el.classList.add('multi-mode'));
+
         if (navigator.vibrate) navigator.vibrate(50);
 
         this.toggleSelection(initialDate, element);
@@ -704,22 +777,21 @@ class UI {
     exitMultiSelect() {
         this.multiSelectMode = false;
         this.selectedEntries.clear();
-        this.multiHeader.classList.add('hidden');
-        document.querySelectorAll('.history-checkbox').forEach(el => el.classList.add('hidden'));
-        document.querySelectorAll('.history-actions-row').forEach(el => el.classList.remove('hidden'));
 
-        // Clear checks
-        document.querySelectorAll('.history-checkbox i').forEach(i => {
-            i.className = 'far fa-square';
+        // Hide Bottom Bar
+        document.getElementById('multi-action-bar').classList.add('hidden');
+
+        // Reset UI
+        document.querySelectorAll('.history-card').forEach(el => {
+            el.classList.remove('multi-mode', 'selected');
         });
-        document.querySelectorAll('.history-item').forEach(el => el.classList.remove('selected'));
-        this.updateSelectionUI();
+        document.getElementById('multi-count').innerText = '0';
     }
 
     toggleSelection(date, element) {
         if (this.selectedEntries.has(date)) {
             this.selectedEntries.delete(date);
-            this.markSelected(element, false);
+            element.classList.remove('selected');
         } else {
             this.selectedEntries.add(date);
             this.markSelected(element, true);

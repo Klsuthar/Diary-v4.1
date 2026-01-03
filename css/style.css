@@ -449,22 +449,6 @@ input[type="range"]::-webkit-slider-thumb {
     font-size: 0.7rem;
 }
 
-.nav-item.active {
-    color: var(--accent);
-}
-
-/* ---------------- HISTORY ---------------- */
-.history-header-card {
-    padding: 1rem;
-    background: var(--secondary-bg);
-    margin-bottom: 1rem;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.search-bar {
-    position: relative;
-}
-
 .search-bar input {
     padding-left: 2.5rem;
     border-radius: 20px;
