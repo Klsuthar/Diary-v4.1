@@ -741,7 +741,7 @@ class UI {
         const dayId = Math.ceil((d - this.referenceDate) / (1000 * 60 * 60 * 24));
 
         return {
-            version: "1.0",
+            version: "4.0",
             date: this.currentDate,
             day_id: dayId,
             weekday: d.toLocaleDateString('en-US', { weekday: 'long' }),
