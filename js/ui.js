@@ -851,7 +851,10 @@ class UI {
     loadEntry(date) {
         this.resetForm();
         const data = this.storage.getEntry(date);
-        if (!data) return;
+        if (!data) {
+            this.setDefaultValues();
+            return;
+        }
 
         const setVal = (id, val) => {
             const el = document.getElementById(id);
@@ -1050,12 +1053,31 @@ class UI {
             if (el.type !== 'date') el.value = "";
         });
         document.querySelectorAll('input[type="range"]').forEach(el => {
-            el.value = (el.min == 1) ? 5 : 0; // Default middle for 1-10, 0 for UV
-            // Reset spans
+            el.value = (el.min == 1) ? 5 : 0;
             const span = el.parentElement.querySelector('span') || document.getElementById(el.id.replace('level', 'val').replace('quality', 'qual-val').replace('index', 'val'));
             if (span) span.innerText = el.value;
         });
         document.querySelectorAll('.app-row input').forEach(el => el.value = "");
+        this.setDefaultValues();
+    }
+
+    setDefaultValues() {
+        const setIfEmpty = (id, val) => {
+            const el = document.getElementById(id);
+            if (el && !el.value) el.value = val;
+        };
+        setIfEmpty('temp-min', '15');
+        setIfEmpty('temp-max', '25');
+        setIfEmpty('aqi', '100');
+        setIfEmpty('humidity', '50');
+        setIfEmpty('uv-index', '5');
+        setIfEmpty('sleep-hours', '8:00');
+        setIfEmpty('medications', 'No');
+        setIfEmpty('symptoms', 'No');
+        
+        ['aqi', 'humidity', 'uv-index'].forEach(id => {
+            document.getElementById(id)?.dispatchEvent(new Event('input'));
+        });
     }
 
     saveEntry(showToast = false) {
