@@ -1689,3 +1689,91 @@ input[type="range"]::-webkit-slider-thumb {
 .char-counter.limit-reached {
     color: #ff0000;
 }
+
+/* ---------------- REAL-TIME UI ANIMATIONS ---------------- */
+
+/* Transitions */
+.fade-enter {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.fade-enter-active {
+    opacity: 1;
+}
+
+.fade-exit {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.fade-exit-active {
+    opacity: 0;
+}
+
+.scale-click {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+}
+
+.slide-in-active {
+    max-height: 500px;
+    opacity: 1;
+    transition: all 0.3s ease;
+}
+
+/* Loading Spinner */
+.spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* BMI Colors */
+.bmi-underweight {
+    color: #3498db;
+    font-weight: bold;
+}
+
+.bmi-normal {
+    color: #2ecc71;
+    font-weight: bold;
+}
+
+.bmi-overweight {
+    color: #f1c40f;
+    font-weight: bold;
+}
+
+.bmi-obese {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+/* Autocomplete Highlight */
+.highlight {
+    background-color: rgba(102, 126, 234, 0.2);
+    font-weight: bold;
+}
+
+/* Validation Warning */
+.input-warning {
+    border-color: #ff9800 !important;
+    background-color: #fff3e0 !important;
+}
+
+.input-error {
+    border-color: #f44336 !important;
+    background-color: #ffebee !important;
+}

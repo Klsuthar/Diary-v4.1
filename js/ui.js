@@ -19,6 +19,26 @@ class UI {
         this.longPressTimer = null;
 
         this.initElements();
+        this.initElements();
+
+        // ------------- HELPERS -------------
+        this.debounce = (func, wait) => {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        };
+
+        this.animate = (el, keyframes, options = { duration: 300, easing: 'ease' }) => {
+            if (!el) return;
+            return el.animate(keyframes, options).finished;
+        };
+
+        this.debouncedSave = this.debounce(() => {
+            this.saveEntry();
+        }, 500);
+
         this.initEventListeners();
 
         // Initial Load
@@ -58,8 +78,17 @@ class UI {
         });
 
         // Date Controls
-        document.getElementById('prev-date').addEventListener('click', () => this.changeDate(-1));
-        document.getElementById('next-date').addEventListener('click', () => this.changeDate(1));
+        const updateDateUI = (change) => {
+            const content = document.querySelector('.content-area');
+            content.style.opacity = '0';
+            setTimeout(() => {
+                this.changeDate(change);
+                content.style.opacity = '1';
+            }, 200);
+        };
+
+        document.getElementById('prev-date').addEventListener('click', () => updateDateUI(-1));
+        document.getElementById('next-date').addEventListener('click', () => updateDateUI(1));
 
         this.dateBtn.addEventListener('click', () => {
             this.hiddenDateInput.showPicker();
@@ -87,7 +116,15 @@ class UI {
             select.addEventListener('change', (e) => {
                 const periodCard = e.target.closest('.period-card');
                 const feelSelect = periodCard.querySelector('.mood-feel');
+
+                // Animate border change
+                periodCard.style.borderColor = '#667eea';
+                setTimeout(() => periodCard.style.borderColor = 'transparent', 500);
+
                 this.updateMoodFeelings(e.target.value, feelSelect);
+
+                // Focus feelings
+                feelSelect.focus();
             });
         });
 
@@ -107,14 +144,31 @@ class UI {
             });
         }
 
-        // Textarea Counters
+        // Textarea Counters (Real-time)
         document.querySelectorAll('textarea').forEach(area => {
             const countId = area.id + '-count';
             const counter = document.getElementById(countId);
             if (counter) {
-                area.addEventListener('input', (e) => {
-                    counter.innerText = `(${e.target.value.length})`;
+                const updateCounter = () => {
+                    const len = area.value.length;
+                    const limit = parseInt(counter.innerText.split('/')[1]) || 200;
+                    counter.innerText = `(${len}/${limit})`;
+                    if (len >= limit) counter.classList.add('limit-reached');
+                    else counter.classList.remove('limit-reached');
+                };
+                area.addEventListener('input', () => {
+                    updateCounter();
+                    this.debouncedSave();
                 });
+                // Initial check
+                updateCounter();
+            }
+        });
+
+        // Global Auto-Save for all Inputs
+        document.querySelectorAll('input, textarea, select').forEach(el => {
+            if (el.type !== 'range') { // Sliders handled separately
+                el.addEventListener('input', this.debouncedSave);
             }
         });
 
@@ -174,9 +228,27 @@ class UI {
             });
         });
 
-        // Import Last Day Buttons
-        document.getElementById('import-last-env').addEventListener('click', () => this.importLastDayData('environment'));
-        document.getElementById('import-last-care').addEventListener('click', () => this.importLastDayData('personal_care'));
+        // Import Last Day Buttons (Animated)
+        const animateImport = async (btnId, section) => {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+
+            btn.disabled = true;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner"></span> Importing...';
+
+            await new Promise(r => setTimeout(r, 500)); // Fake delay for feel
+            this.importLastDayData(section);
+
+            btn.innerHTML = '<i class="fas fa-check"></i> Done';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 1500);
+        };
+
+        document.getElementById('import-last-env').addEventListener('click', () => animateImport('import-last-env', 'environment'));
+        document.getElementById('import-last-care').addEventListener('click', () => animateImport('import-last-care', 'personal_care'));
 
         // --- NEW BASIC TAB LOGIC ---
 
@@ -241,18 +313,58 @@ class UI {
             return { text: 'Excellent 🌟', cls: 'qual-excellent' };
         });
 
-        // Hydration Logic
+        // BMI Calculation (Real-time)
+        const updateBMI = () => {
+            const w = parseFloat(document.getElementById('weight').value);
+            const h = parseFloat(document.getElementById('height').value);
+            const bmiDisplay = document.getElementById('bmi-display') || createBMIElement();
+
+            if (w && h) {
+                const bmi = (w / ((h / 100) ** 2)).toFixed(1);
+                let cls = 'bmi-normal';
+                let text = 'Normal';
+                if (bmi < 18.5) { cls = 'bmi-underweight'; text = 'Underweight'; }
+                else if (bmi >= 25 && bmi < 30) { cls = 'bmi-overweight'; text = 'Overweight'; }
+                else if (bmi >= 30) { cls = 'bmi-obese'; text = 'Obese'; }
+
+                bmiDisplay.innerHTML = `BMI: ${bmi} (<span class="${cls}">${text}</span>)`;
+                bmiDisplay.style.opacity = '1';
+            } else {
+                bmiDisplay.style.opacity = '0';
+            }
+        };
+
+        const createBMIElement = () => {
+            const container = document.getElementById('weight').closest('.card');
+            const div = document.createElement('div');
+            div.id = 'bmi-display';
+            div.style.marginTop = '10px';
+            div.style.textAlign = 'center';
+            div.style.transition = 'opacity 0.3s';
+            container.appendChild(div);
+            return div;
+        };
+
+        document.getElementById('weight').addEventListener('input', updateBMI);
+        document.getElementById('height').addEventListener('input', updateBMI);
+
+
+        // Hydration Logic (Enhanced)
         const updateGlasses = () => {
             const val = parseFloat(document.getElementById('water-intake').value) || 0;
             const glassCount = Math.min(8, Math.floor(val / 0.25));
             const glasses = document.querySelectorAll('.glass-indicators i');
             glasses.forEach((glass, idx) => {
+                glass.style.transition = 'color 0.3s, transform 0.3s';
                 if (idx < glassCount) {
-                    glass.classList.remove('far', 'fa-circle');
-                    glass.classList.add('fas', 'fa-glass-water', 'filled');
+                    glass.className = 'fas fa-glass-water filled';
+                    glass.style.color = '#3498db';
+                    glass.style.transform = 'scale(1.2)';
+                    setTimeout(() => glass.style.transform = 'scale(1)', 200);
                 } else {
-                    glass.classList.remove('fas', 'fa-glass-water', 'filled');
-                    glass.classList.add('far', 'fa-circle');
+                    glass.className = 'far fa-circle';
+                    glass.style.color = '#ccc';
+                    glass.style.transform = 'scale(1)';
                 }
             });
         };
@@ -331,33 +443,102 @@ class UI {
             importBasicBtn.addEventListener('click', () => this.importLastDayData('environment'));
         }
 
+        // Top 5 Apps Validation
+        const validateAppRates = () => {
+            const screenTimeStr = document.getElementById('screen-time')?.value || '';
+            // Try to parse hours/mins/decimal
+            let totalScreenMinutes = 0;
+            if (screenTimeStr.toLowerCase().includes('h')) {
+                // Simple parsing "5h 30m" or "5h"
+                const parts = screenTimeStr.match(/(\d+(?:\.\d+)?)\s*h/);
+                if (parts) totalScreenMinutes += parseFloat(parts[1]) * 60;
+                const mParts = screenTimeStr.match(/(\d+)\s*m/);
+                if (mParts) totalScreenMinutes += parseFloat(mParts[1]);
+            } else {
+                // Assume number is hours if just digits
+                const val = parseFloat(screenTimeStr);
+                if (!isNaN(val)) totalScreenMinutes = val * 60;
+            }
+
+            if (totalScreenMinutes <= 0) return; // Can't validate
+
+            let totalAppMinutes = 0;
+            const appInputs = document.querySelectorAll('.app-time');
+            appInputs.forEach(input => {
+                const val = input.value.toLowerCase();
+                let mins = 0;
+                if (val.includes('h')) {
+                    const parts = val.match(/(\d+(?:\.\d+)?)\s*h/);
+                    if (parts) mins += parseFloat(parts[1]) * 60;
+                    const mParts = val.match(/(\d+)\s*m/);
+                    if (mParts) mins += parseFloat(mParts[1]);
+                } else if (val.includes('m')) {
+                    const mParts = val.match(/(\d+)\s*m/);
+                    if (mParts) mins += parseFloat(mParts[1]);
+                } else {
+                    // fallback assuming minutes for app time if just number
+                    const v = parseFloat(val);
+                    if (!isNaN(v)) mins = v;
+                }
+                totalAppMinutes += mins;
+            });
+
+            const screenInput = document.getElementById('screen-time');
+            if (totalAppMinutes > totalScreenMinutes) {
+                screenInput.classList.add('input-warning');
+                // Maybe toast warning?
+            } else {
+                screenInput.classList.remove('input-warning');
+            }
+        };
+
+        const appTimeInputs = document.querySelectorAll('.app-time');
+        appTimeInputs.forEach(input => input.addEventListener('input', validateAppRates));
+        document.getElementById('screen-time')?.addEventListener('input', validateAppRates);
+
         // ---------------- SUMMARY TAB LISTENERS ----------------
-        // Suggestion Chips (Generic)
+        // Suggestion Chips (Real-time Autocomplete)
         document.querySelectorAll('.suggestion-chips-container').forEach(container => {
             const inputId = container.dataset.input;
             if (!inputId) return;
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            // Click Handler
             container.querySelectorAll('.chip').forEach(chip => {
                 chip.addEventListener('click', () => {
-                    // Check if input is textarea or text
-                    const input = document.getElementById(inputId);
-                    if (!input) return;
-
-                    if (input.tagName === 'TEXTAREA' || inputId === 'breakfast' || inputId === 'lunch' || inputId === 'dinner' || inputId === 'snacks' || inputId === 'app-usage-intent') {
-                        // Append with comma
-                        const current = input.value;
-                        if (current) {
-                            if (!current.includes(chip.innerText)) {
-                                input.value = current + ", " + chip.innerText;
-                            }
-                        } else {
-                            input.value = chip.innerText;
-                        }
+                    const isMulti = input.tagName === 'TEXTAREA' || ['breakfast', 'lunch', 'dinner', 'snacks', 'app-usage-intent'].includes(inputId);
+                    const current = input.value;
+                    if (isMulti && current) {
+                        if (!current.includes(chip.innerText)) input.value = current + ", " + chip.innerText;
                     } else {
-                        // Replace for simple inputs
                         input.value = chip.innerText;
                     }
                     input.dispatchEvent(new Event('input'));
+                    // Reset filter after selection
+                    container.querySelectorAll('.chip').forEach(c => c.style.display = '');
                 });
+            });
+
+            // Filter on Type
+            input.addEventListener('input', (e) => {
+                const val = e.target.value.toLowerCase();
+                // Get last segment if comma separated
+                const lastSegment = val.split(',').pop().trim();
+
+                container.querySelectorAll('.chip').forEach(chip => {
+                    const text = chip.innerText.toLowerCase();
+                    if (text.includes(lastSegment)) {
+                        chip.style.display = '';
+                        // Highlight logic could go here
+                        chip.classList.add('highlight'); // Simple highlight class
+                    } else {
+                        chip.style.display = 'none';
+                        chip.classList.remove('highlight');
+                    }
+                });
+                // If input empty, show all
+                if (!lastSegment) container.querySelectorAll('.chip').forEach(c => c.style.display = '');
             });
         });
 
