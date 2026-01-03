@@ -941,17 +941,26 @@ class UI {
                     if (tl[p]) {
                         const block = document.querySelector(`.period-card[data-period="${p}"]`);
                         if (block) {
-                            block.querySelector('.mood-slider').value = tl[p].mood_level || 5;
-                            block.querySelector('.mood-val').innerText = tl[p].mood_level || 5;
-
-                            const catSel = block.querySelector('.mood-category'); // Updated class name if needed, check HTML
-                            if (catSel) {
-                                catSel.value = tl[p].mood_category || "";
-                                // Trigger cat change
-                                this.updateMoodFeelings(catSel.value, block.querySelector('.mood-feel'));
+                            const slider = block.querySelector('.mood-slider');
+                            const valDisplay = block.querySelector('.mood-val-display');
+                            const catSelect = block.querySelector('.mood-cat');
+                            const feelSelect = block.querySelector('.mood-feel');
+                            
+                            if (slider) slider.value = tl[p].mood_level || 5;
+                            if (valDisplay) {
+                                const emoji = this.getMoodEmoji(tl[p].mood_level || 5);
+                                valDisplay.innerText = `${tl[p].mood_level || 5} ${emoji}`;
                             }
-
-                            block.querySelector('.mood-feel').value = tl[p].mood_feeling || "";
+                            
+                            if (catSelect) {
+                                catSelect.value = tl[p].mood_category || "";
+                                // Trigger category change to populate feelings
+                                this.updateMoodFeelings(catSelect.value, feelSelect);
+                            }
+                            
+                            if (feelSelect) {
+                                feelSelect.value = tl[p].mood_feeling || "";
+                            }
                         }
                     }
                 });
@@ -1360,6 +1369,14 @@ class UI {
     // -------------------------------------------------------------------------
 
     loadHistory(date) {
+        // Check for unsaved changes before loading history entry
+        if (this.hasUnsavedChanges) {
+            if (!confirm('You have unsaved changes. Do you want to save before loading this entry?')) {
+                return;
+            }
+            this.saveEntry(true);
+        }
+        
         this.currentDate = date;
         this.loadEntry(date);
         this.updateDateDisplay();
