@@ -1390,6 +1390,69 @@ input[type="range"]::-webkit-slider-thumb {
 .section-header h4 {
     margin: 0;
     font-size: 1.1rem;
+    flex: 1;
+}
+
+.add-period-mood-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    margin-left: auto;
+    transition: all 0.2s;
+}
+
+.add-period-mood-btn:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.1);
+}
+
+.mood-entry {
+    position: relative;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.mood-entry:last-child {
+    margin-bottom: 0;
+}
+
+.remove-mood-entry-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(239, 68, 68, 0.8);
+    border: none;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    transition: all 0.2s;
+    opacity: 0;
+    z-index: 10;
+}
+
+.mood-entry:hover .remove-mood-entry-btn {
+    opacity: 1;
+}
+
+.remove-mood-entry-btn:hover {
+    background: #ef4444;
+    transform: scale(1.1);
 }
 
 .section-subtitle {
@@ -1424,6 +1487,9 @@ input[type="range"]::-webkit-slider-thumb {
     font-weight: 600;
     font-size: 0.9rem;
     color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .morning-badge {

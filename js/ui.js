@@ -317,6 +317,17 @@ class UI {
             });
         });
 
+        // Add Mood Button
+        document.getElementById('add-mood-btn')?.addEventListener('click', () => this.addMoodEntry());
+
+        // Delegate remove button clicks
+        document.getElementById('timeline-container')?.addEventListener('click', (e) => {
+            if (e.target.closest('.remove-mood-btn')) {
+                const card = e.target.closest('.period-card');
+                if (card) this.removeMoodEntry(card);
+            }
+        });
+
         // ------------------ SUMMARY TAB ------------------
         // Import Buttons
         const animateImport = async (btnId, section) => {
@@ -504,9 +515,12 @@ class UI {
                            entry.health_and_fitness?.medications_taken &&
                            entry.health_and_fitness?.physical_symptoms;
         
-        // Check Mental tab
+        // Check Mental tab - Handle arrays
         const allMoodTimelinesComplete = ['morning', 'afternoon', 'evening', 'night'].every(period => {
             const timeline = entry.mental_and_emotional_health?.mood_timeline?.[period];
+            if (Array.isArray(timeline)) {
+                return timeline.length > 0 && timeline.every(m => m.mood_category && m.mood_feeling);
+            }
             return timeline?.mood_category && timeline?.mood_feeling;
         });
         const mentalComplete = entry.mental_and_emotional_health?.mental_state && 
@@ -764,15 +778,19 @@ class UI {
         const getVal = (id) => document.getElementById(id)?.value || "";
         const getNum = (id) => document.getElementById(id)?.value ? Number(document.getElementById(id).value) : null;
 
-        // Mood Timeline
+        // Mood Timeline - Collect as arrays
         const getMoodParams = (period) => {
-            const block = document.querySelector(`.period-card[data-period="${period}"]`);
-            if (!block) return { mood_level: 5, mood_category: "", mood_feeling: "" };
-            return {
-                mood_level: Number(block.querySelector('.mood-slider').value) || 5,
-                mood_category: block.querySelector('.mood-cat').value || "",
-                mood_feeling: block.querySelector('.mood-feel').value || ""
-            };
+            const container = document.getElementById(`${period}-moods`);
+            if (!container) return [];
+            const entries = [];
+            container.querySelectorAll('.mood-entry').forEach(entry => {
+                entries.push({
+                    mood_level: Number(entry.querySelector('.mood-slider').value) || 5,
+                    mood_category: entry.querySelector('.mood-cat').value || "",
+                    mood_feeling: entry.querySelector('.mood-feel').value || ""
+                });
+            });
+            return entries;
         };
 
         // Apps
@@ -965,35 +983,90 @@ class UI {
             setVal('meditation-status', data.mental_and_emotional_health.meditation_status || "No");
             setVal('meditation-duration', data.mental_and_emotional_health.meditation_duration_min || 0);
 
-            // Timeline
+            // Timeline - Load arrays
             const tl = data.mental_and_emotional_health.mood_timeline;
             if (tl) {
                 ['morning', 'afternoon', 'evening', 'night'].forEach(p => {
-                    if (tl[p]) {
-                        const block = document.querySelector(`.period-card[data-period="${p}"]`);
-                        if (block) {
-                            const slider = block.querySelector('.mood-slider');
-                            const valDisplay = block.querySelector('.mood-val-display');
-                            const catSelect = block.querySelector('.mood-cat');
-                            const feelSelect = block.querySelector('.mood-feel');
+                    const container = document.getElementById(`${p}-moods`);
+                    if (!container) return;
+                    
+                    const moodData = tl[p];
+                    if (!moodData) return;
+                    
+                    // Handle both array and single object formats
+                    const moodArray = Array.isArray(moodData) ? moodData : [moodData];
+                    
+                    // Clear existing entries
+                    container.innerHTML = '';
+                    
+                    // Add entries from data
+                    moodArray.forEach((mood, idx) => {
+                        if (idx > 0) {
+                            // Add new entry for additional moods
+                            if (window.addPeriodMood) {
+                                window.addPeriodMood(p);
+                            }
+                        } else {
+                            // Create first entry
+                            const entry = document.createElement('div');
+                            entry.className = 'mood-entry';
+                            entry.innerHTML = `
+                                <button class="remove-mood-entry-btn" title="Remove"><i class="fas fa-times"></i></button>
+                                <div class="slider-group">
+                                    <div class="flex-between">
+                                        <label>Mood Level</label>
+                                        <span class="mood-val-display">5 😐</span>
+                                    </div>
+                                    <input type="range" class="mood-slider" min="1" max="10" value="5">
+                                </div>
+                                <div class="mood-dropdowns-grid">
+                                    <div class="dropdown-group">
+                                        <label>Category</label>
+                                        <select class="mood-cat">
+                                            <option value="">Select Category...</option>
+                                            <option value="positive_high_energy">Positive High Energy</option>
+                                            <option value="neutral_balanced">Neutral Balanced</option>
+                                            <option value="low_energy_tired">Low Energy Tired</option>
+                                            <option value="negative_heavy">Negative Heavy</option>
+                                            <option value="cognitive">Cognitive</option>
+                                        </select>
+                                    </div>
+                                    <div class="dropdown-group">
+                                        <label>Feeling</label>
+                                        <select class="mood-feel" disabled>
+                                            <option value="">Select Category First</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            `;
+                            container.appendChild(entry);
+                        }
+                        
+                        // Populate the entry
+                        const entries = container.querySelectorAll('.mood-entry');
+                        const entry = entries[idx];
+                        if (entry) {
+                            const slider = entry.querySelector('.mood-slider');
+                            const valDisplay = entry.querySelector('.mood-val-display');
+                            const catSelect = entry.querySelector('.mood-cat');
+                            const feelSelect = entry.querySelector('.mood-feel');
                             
-                            if (slider) slider.value = tl[p].mood_level || 5;
+                            if (slider) slider.value = mood.mood_level || 5;
                             if (valDisplay) {
-                                const emoji = this.getMoodEmoji(tl[p].mood_level || 5);
-                                valDisplay.innerText = `${tl[p].mood_level || 5} ${emoji}`;
+                                const emoji = this.getMoodEmoji(mood.mood_level || 5);
+                                valDisplay.innerText = `${mood.mood_level || 5} ${emoji}`;
                             }
                             
                             if (catSelect) {
-                                catSelect.value = tl[p].mood_category || "";
-                                // Trigger category change to populate feelings
+                                catSelect.value = mood.mood_category || "";
                                 this.updateMoodFeelings(catSelect.value, feelSelect);
                             }
                             
                             if (feelSelect) {
-                                feelSelect.value = tl[p].mood_feeling || "";
+                                feelSelect.value = mood.mood_feeling || "";
                             }
                         }
-                    }
+                    });
                 });
             }
         }
@@ -1583,7 +1656,10 @@ class UI {
         // Check Mental tab - ALL fields required
         const allMoodTimelinesComplete = ['morning', 'afternoon', 'evening', 'night'].every(period => {
             const timeline = data.mental_and_emotional_health.mood_timeline[period];
-            return timeline.mood_category && timeline.mood_feeling;
+            if (Array.isArray(timeline)) {
+                return timeline.length > 0 && timeline.every(m => m.mood_category && m.mood_feeling);
+            }
+            return timeline && timeline.mood_category && timeline.mood_feeling;
         });
         const mentalComplete = data.mental_and_emotional_health.mental_state && 
                              data.mental_and_emotional_health.mental_state_reason &&
