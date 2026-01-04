@@ -1,8 +1,8 @@
 {
-  "version": "1.0",
-  "date": "2024-01-15",
+  "version": "4.0",
+  "date": "2026-01-01",
   "day_id": 7500,
-  "weekday": "Monday",
+  "weekday": "Thursday",
   "environment": {
     "temperature_c": "20-30",
     "air_quality_index": 80,

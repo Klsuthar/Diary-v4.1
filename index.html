@@ -307,21 +307,7 @@
                     </div>
                     <div class="form-group">
                         <label>Overall State</label>
-                        <select id="mental-state" class="mental-dropdown">
-                            <option value="">Select state...</option>
-                            <option value="Positive">Positive</option>
-                            <option value="Neutral">Neutral</option>
-                            <option value="Negative">Negative</option>
-                            <option value="Mixed">Mixed</option>
-                            <option value="Anxious">Anxious</option>
-                            <option value="Calm">Calm</option>
-                            <option value="Stressed">Stressed</option>
-                            <option value="Custom">Custom</option>
-                        </select>
-                    </div>
-                    <div class="form-group hidden" id="custom-mental-state-group">
-                        <label>Custom Mood</label>
-                        <input type="text" id="custom-mental-state" placeholder="Enter your custom mood...">
+                        <input type="text" id="mental-state" placeholder="e.g. Positive, Calm, Anxious, etc.">
                     </div>
                     <div class="form-group">
                         <label>Reason <small id="mental-reason-count" class="char-count">(0/500)</small></label>
@@ -517,16 +503,12 @@
                         <i class="fas fa-spa"></i> <span class="card-title">Meditation</span>
                     </div>
                     <div class="form-group">
-                        <label>Did you meditate?</label>
-                        <select id="meditation-status">
-                            <option value="Na">Not Applicable</option>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
+                        <label>Meditation Type/Name</label>
+                        <input type="text" id="meditation-status" value="No" placeholder="e.g. Vipassana, Mindfulness, or No">
                     </div>
-                    <div class="form-group hidden slide-in" id="meditation-duration-group">
+                    <div class="form-group">
                         <label>Duration (minutes)</label>
-                        <input type="number" id="meditation-duration" placeholder="e.g. 15">
+                        <input type="number" id="meditation-duration" value="0" min="0" placeholder="0">
                     </div>
                 </div>
 
