@@ -480,6 +480,74 @@ class UI {
         return '😢';
     }
 
+    isEntryComplete(entry) {
+        // Check Basic tab
+        const basicComplete = entry.environment?.temperature_c && 
+                            entry.environment?.weather_condition && 
+                            entry.environment?.air_quality_index !== null &&
+                            entry.environment?.humidity_percent !== null &&
+                            entry.environment?.uv_index !== null &&
+                            entry.environment?.environment_experience;
+        
+        // Check Body tab
+        const bodyComplete = entry.body_measurements?.weight_kg && 
+                           entry.body_measurements?.height_cm && 
+                           entry.body_measurements?.chest && 
+                           entry.body_measurements?.belly &&
+                           entry.health_and_fitness?.sleep_hours && 
+                           entry.health_and_fitness?.sleep_quality !== null &&
+                           entry.health_and_fitness?.sleep_quality_description &&
+                           entry.health_and_fitness?.steps_count !== null &&
+                           entry.health_and_fitness?.steps_distance_km !== null &&
+                           entry.health_and_fitness?.kilocalorie !== null &&
+                           entry.health_and_fitness?.water_intake_liters !== null &&
+                           entry.health_and_fitness?.medications_taken &&
+                           entry.health_and_fitness?.physical_symptoms;
+        
+        // Check Mental tab
+        const allMoodTimelinesComplete = ['morning', 'afternoon', 'evening', 'night'].every(period => {
+            const timeline = entry.mental_and_emotional_health?.mood_timeline?.[period];
+            return timeline?.mood_category && timeline?.mood_feeling;
+        });
+        const mentalComplete = entry.mental_and_emotional_health?.mental_state && 
+                             entry.mental_and_emotional_health?.mental_state_reason &&
+                             allMoodTimelinesComplete &&
+                             entry.mental_and_emotional_health?.energy_level !== null &&
+                             entry.mental_and_emotional_health?.energy_reason &&
+                             entry.mental_and_emotional_health?.stress_level !== null &&
+                             entry.mental_and_emotional_health?.stress_reason &&
+                             entry.mental_and_emotional_health?.meditation_status &&
+                             entry.mental_and_emotional_health?.meditation_duration_min !== null;
+        
+        // Check Diet tab
+        const dietComplete = entry.diet_and_nutrition?.breakfast && 
+                           entry.diet_and_nutrition?.lunch && 
+                           entry.diet_and_nutrition?.dinner && 
+                           entry.diet_and_nutrition?.additional_items &&
+                           entry.personal_care?.face_product_name &&
+                           entry.personal_care?.face_product_brand &&
+                           entry.personal_care?.hair_product_name &&
+                           entry.personal_care?.hair_product_brand &&
+                           entry.personal_care?.hair_oil &&
+                           entry.personal_care?.skincare_routine;
+        
+        // Check Summary tab
+        const allAppsComplete = entry.activities_and_productivity?.most_used_apps && 
+                              entry.activities_and_productivity.most_used_apps.length === 5 &&
+                              entry.activities_and_productivity.most_used_apps.every(app => app.name && app.time);
+        const summaryComplete = entry.additional_notes?.key_events &&
+                              entry.daily_activity_summary && 
+                              entry.overall_day_experience &&
+                              entry.additional_notes?.other_note_status &&
+                              entry.activities_and_productivity?.tasks_today_english &&
+                              entry.activities_and_productivity?.travel_destination &&
+                              entry.activities_and_productivity?.phone_screen_on_hr &&
+                              allAppsComplete &&
+                              entry.activities_and_productivity?.app_usage_intent;
+        
+        return basicComplete && bodyComplete && mentalComplete && dietComplete && summaryComplete;
+    }
+
     appendReason(id, text) {
         // Handle both ID styles (e.g., 'energy' -> 'energy-reason' OR direct ID)
         let field = document.getElementById(id);
@@ -1150,8 +1218,8 @@ class UI {
 
             const summary = entry.daily_activity_summary || "No summary provided...";
 
-            // Check status (simplified)
-            const isComplete = entry.daily_activity_summary && entry.daily_activity_summary.length > 10;
+            // Check status - comprehensive validation
+            const isComplete = this.isEntryComplete(entry);
             const statusHtml = isComplete
                 ? `<span class="entry-status status-complete"><i class="fas fa-check-circle"></i> Complete</span>`
                 : `<span class="entry-status status-incomplete"><i class="fas fa-exclamation-circle"></i> Incomplete</span>`;
@@ -1448,26 +1516,73 @@ class UI {
     updateTabIndicators() {
         const data = this.collectData();
         
-        // Check Basic tab - all environment fields required
-        const basicComplete = data.environment.weather_condition && 
-                            data.environment.temperature_c && 
+        // Check Basic tab - ALL fields required
+        const basicComplete = data.environment.temperature_c && 
+                            data.environment.weather_condition && 
+                            data.environment.air_quality_index !== null &&
+                            data.environment.humidity_percent !== null &&
+                            data.environment.uv_index !== null &&
                             data.environment.environment_experience;
         document.querySelector('[data-target="tab-basic"]')?.classList.toggle('incomplete', !basicComplete);
         
-        // Check Body tab
-        const bodyComplete = data.body_measurements.weight_kg && data.health_and_fitness.sleep_hours;
+        // Check Body tab - ALL fields required
+        const bodyComplete = data.body_measurements.weight_kg && 
+                           data.body_measurements.height_cm && 
+                           data.body_measurements.chest && 
+                           data.body_measurements.belly &&
+                           data.health_and_fitness.sleep_hours && 
+                           data.health_and_fitness.sleep_quality !== null &&
+                           data.health_and_fitness.sleep_quality_description &&
+                           data.health_and_fitness.steps_count !== null &&
+                           data.health_and_fitness.steps_distance_km !== null &&
+                           data.health_and_fitness.kilocalorie !== null &&
+                           data.health_and_fitness.water_intake_liters !== null &&
+                           data.health_and_fitness.medications_taken &&
+                           data.health_and_fitness.physical_symptoms;
         document.querySelector('[data-target="tab-body"]')?.classList.toggle('incomplete', !bodyComplete);
         
-        // Check Mental tab
-        const mentalComplete = data.mental_and_emotional_health.mental_state && data.mental_and_emotional_health.energy_level;
+        // Check Mental tab - ALL fields required
+        const allMoodTimelinesComplete = ['morning', 'afternoon', 'evening', 'night'].every(period => {
+            const timeline = data.mental_and_emotional_health.mood_timeline[period];
+            return timeline.mood_category && timeline.mood_feeling;
+        });
+        const mentalComplete = data.mental_and_emotional_health.mental_state && 
+                             data.mental_and_emotional_health.mental_state_reason &&
+                             allMoodTimelinesComplete &&
+                             data.mental_and_emotional_health.energy_level !== null &&
+                             data.mental_and_emotional_health.energy_reason &&
+                             data.mental_and_emotional_health.stress_level !== null &&
+                             data.mental_and_emotional_health.stress_reason &&
+                             data.mental_and_emotional_health.meditation_status &&
+                             data.mental_and_emotional_health.meditation_duration_min !== null;
         document.querySelector('[data-target="tab-mental"]')?.classList.toggle('incomplete', !mentalComplete);
         
-        // Check Diet tab
-        const dietComplete = data.diet_and_nutrition.breakfast || data.diet_and_nutrition.lunch || data.diet_and_nutrition.dinner;
+        // Check Diet tab - ALL fields required
+        const dietComplete = data.diet_and_nutrition.breakfast && 
+                           data.diet_and_nutrition.lunch && 
+                           data.diet_and_nutrition.dinner && 
+                           data.diet_and_nutrition.additional_items &&
+                           data.personal_care.face_product_name &&
+                           data.personal_care.face_product_brand &&
+                           data.personal_care.hair_product_name &&
+                           data.personal_care.hair_product_brand &&
+                           data.personal_care.hair_oil &&
+                           data.personal_care.skincare_routine;
         document.querySelector('[data-target="tab-diet"]')?.classList.toggle('incomplete', !dietComplete);
         
-        // Check Summary tab
-        const summaryComplete = data.daily_activity_summary && data.daily_activity_summary.length > 10;
+        // Check Summary tab - ALL fields required
+        const allAppsComplete = data.activities_and_productivity.most_used_apps && 
+                              data.activities_and_productivity.most_used_apps.length === 5 &&
+                              data.activities_and_productivity.most_used_apps.every(app => app.name && app.time);
+        const summaryComplete = data.additional_notes.key_events &&
+                              data.daily_activity_summary && 
+                              data.overall_day_experience &&
+                              data.additional_notes.other_note_status &&
+                              data.activities_and_productivity.tasks_today_english &&
+                              data.activities_and_productivity.travel_destination &&
+                              data.activities_and_productivity.phone_screen_on_hr &&
+                              allAppsComplete &&
+                              data.activities_and_productivity.app_usage_intent;
         document.querySelector('[data-target="tab-summary"]')?.classList.toggle('incomplete', !summaryComplete);
     }
 }
