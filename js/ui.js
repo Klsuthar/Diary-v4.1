@@ -901,7 +901,7 @@ class UI {
             // Trigger hydration visual update
             document.getElementById('water-intake')?.dispatchEvent(new Event('input'));
 
-            setVal('medications', data.health_and_and_fitness.medications_taken);
+            setVal('medications', data.health_and_fitness.medications_taken);
             setVal('symptoms', data.health_and_fitness.physical_symptoms);
         }
 
@@ -1239,10 +1239,10 @@ class UI {
                 ${statusHtml}
                 
                 <div class="action-row">
-                    <button class="icon-action-btn edit-btn" data-date="${date}" title="Edit"><i class="fas fa-edit"></i></button>
-                    <button class="icon-action-btn download-btn" data-date="${date}" title="Export JSON"><i class="fas fa-download"></i></button>
+                    <button class="icon-action-btn edit-btn" onclick="alert('Edit clicked for ${date}'); if(window.app && window.app.ui) { window.app.ui.loadHistory('${date}'); } else { alert('App not loaded yet'); }" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button class="icon-action-btn download-btn" onclick="if(window.app && window.app.ui) { window.app.ui.exportOne('${date}'); }" title="Export JSON"><i class="fas fa-download"></i></button>
                     <button class="icon-action-btn expand-btn" title="View Data"><i class="fas fa-code"></i></button>
-                    <button class="icon-action-btn delete-btn" data-date="${date}" title="Delete"><i class="fas fa-trash"></i></button>
+                    <button class="icon-action-btn delete-btn" onclick="if(window.app && window.app.ui) { window.app.ui.deleteOne('${date}'); }" title="Delete"><i class="fas fa-trash"></i></button>
                 </div>
 
                 <div class="expanded-view">
@@ -1258,24 +1258,6 @@ class UI {
                 e.stopPropagation();
                 const view = div.querySelector('.expanded-view');
                 view.classList.toggle('show');
-            });
-
-            // Edit Button
-            div.querySelector('.edit-btn').addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.loadHistory(e.currentTarget.dataset.date);
-            });
-
-            // Download Button
-            div.querySelector('.download-btn').addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.exportOne(e.currentTarget.dataset.date);
-            });
-
-            // Delete Button
-            div.querySelector('.delete-btn').addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.deleteOne(e.currentTarget.dataset.date);
             });
 
             // Card Click (Selection or Edit)
@@ -1369,18 +1351,28 @@ class UI {
     // -------------------------------------------------------------------------
 
     loadHistory(date) {
-        // Check for unsaved changes before loading history entry
-        if (this.hasUnsavedChanges) {
-            if (!confirm('You have unsaved changes. Do you want to save before loading this entry?')) {
-                return;
-            }
-            this.saveEntry(true);
-        }
+        console.log('Loading history for date:', date);
         
+        // Disable unsaved changes check temporarily
+        const originalFlag = this.hasUnsavedChanges;
+        this.hasUnsavedChanges = false;
+        
+        // Set the current date to the selected date
         this.currentDate = date;
+        
+        // Load the entry data
         this.loadEntry(date);
+        
+        // Update the date display at top
         this.updateDateDisplay();
+        
+        // Switch to Basic tab (home)
         this.switchTab('tab-basic');
+        
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        console.log('History loaded and switched to Basic tab');
     }
 
     exportOne(date) {
