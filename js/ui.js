@@ -158,7 +158,7 @@ class UI {
         document.getElementById('menu-backup').addEventListener('click', () => this.createBackup());
         document.getElementById('menu-restore').addEventListener('click', () => document.getElementById('import-backup-file').click());
         document.getElementById('import-backup-file').addEventListener('change', (e) => this.handleFileImport(e, true));
-        document.getElementById('menu-refresh').addEventListener('click', () => location.reload());
+        document.getElementById('menu-refresh').addEventListener('click', () => this.hardRefresh());
 
         // Multi-select
         this.initMultiSelectListeners();
@@ -1243,10 +1243,12 @@ class UI {
                 </div>
 
                 <div class="expanded-view">
-                    <pre>${this.syntaxHighlight(entry)}</pre>
-                    <button class="import-btn mt-2" onclick="navigator.clipboard.writeText(this.previousElementSibling.innerText); alert('Copied!');" style="padding:8px; font-size:0.8rem;">
-                        <i class="fas fa-copy"></i> Copy JSON
-                    </button>
+                    <div class="json-header">
+                        <button class="copy-json-btn" title="Copy JSON">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <pre class="json-content">${this.syntaxHighlight(entry)}</pre>
                 </div>
             `;
 
@@ -1255,6 +1257,18 @@ class UI {
                 e.stopPropagation();
                 const view = div.querySelector('.expanded-view');
                 view.classList.toggle('show');
+            });
+
+            // Copy JSON Button
+            div.querySelector('.copy-json-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const jsonText = JSON.stringify(entry, null, 2);
+                navigator.clipboard.writeText(jsonText).then(() => {
+                    const btn = e.currentTarget;
+                    const originalHTML = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    setTimeout(() => btn.innerHTML = originalHTML, 1500);
+                }).catch(() => alert('Failed to copy'));
             });
 
             // Card Click (Selection or Edit)
@@ -1511,6 +1525,31 @@ class UI {
             }
         }
         this.updateTabIndicators();
+    }
+
+    async hardRefresh() {
+        if (confirm('Clear cache and reload? This will fetch the latest version.')) {
+            try {
+                // Clear all caches
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(name => caches.delete(name)));
+                }
+                
+                // Unregister service workers
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(registrations.map(reg => reg.unregister()));
+                }
+                
+                // Hard reload
+                window.location.reload(true);
+            } catch (err) {
+                console.error('Hard refresh error:', err);
+                // Fallback to simple reload
+                window.location.reload(true);
+            }
+        }
     }
 
     updateTabIndicators() {
