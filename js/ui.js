@@ -887,6 +887,8 @@ class UI {
                 other_note_status: getVal('other-notes-status')
             },
 
+            decisions: window.decisionsHandler ? window.decisionsHandler.collect() : [],
+
             daily_activity_summary: getVal('daily-summary'),
             overall_day_experience: getVal('overall-exp')
         };
@@ -1115,6 +1117,11 @@ class UI {
 
         setVal('daily-summary', data.daily_activity_summary);
         setVal('overall-exp', data.overall_day_experience);
+
+        // Decisions
+        if (data.decisions && window.decisionsHandler) {
+            window.decisionsHandler.load(data.decisions);
+        }
 
         // Update all counters
         document.querySelectorAll('textarea').forEach(el => {

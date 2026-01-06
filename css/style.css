@@ -2046,3 +2046,205 @@ input[type="range"]::-webkit-slider-thumb {
     font-size: 0.7rem;
     color: var(--text-secondary);
 }
+
+/* Decisions */
+.decisions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 1rem;
+}
+
+.decision-item {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.decision-item.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+}
+
+.decision-item.drag-over {
+    border-top: 3px solid var(--accent);
+}
+
+.decision-header {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    cursor: pointer;
+    user-select: none;
+    gap: 8px;
+}
+
+.decision-header:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.decision-number {
+    background: var(--accent);
+    color: #1e293b;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-right: 12px;
+    flex-shrink: 0;
+    cursor: grab;
+}
+
+.decision-number:active {
+    cursor: grabbing;
+}
+
+.decision-preview {
+    flex: 1;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.decision-toggle {
+    color: var(--text-secondary);
+    transition: transform 0.2s;
+    margin-left: auto;
+}
+
+.decision-item.expanded .decision-toggle {
+    transform: rotate(180deg);
+}
+
+.decision-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    padding: 0 12px;
+}
+
+.decision-item.expanded .decision-content {
+    max-height: 500px;
+    padding: 0 12px 12px 12px;
+}
+
+.decision-json {
+    font-family: 'Consolas', monospace;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 0.85rem;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 12px;
+    border-radius: 6px;
+}
+
+.remove-decision-btn {
+    background: rgba(239, 68, 68, 0.8);
+    border: none;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.remove-decision-btn:hover {
+    background: #ef4444;
+    transform: scale(1.1);
+}
+
+.edit-decision-btn {
+    background: rgba(245, 158, 11, 0.8);
+    border: none;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.edit-decision-btn:hover {
+    background: var(--accent);
+    transform: scale(1.1);
+}
+
+.decision-edit-area {
+    padding: 12px;
+    display: none;
+}
+
+.decision-item.editing .decision-edit-area {
+    display: block;
+}
+
+.decision-item.editing .decision-content {
+    display: none;
+}
+
+.decision-edit-area textarea {
+    width: 100%;
+    min-height: 150px;
+    font-family: 'Consolas', monospace;
+    font-size: 0.85rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 12px;
+    color: var(--text-primary);
+    resize: vertical;
+}
+
+.decision-edit-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.save-decision-btn, .cancel-decision-btn {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.save-decision-btn {
+    background: var(--accent);
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.save-decision-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+}
+
+.cancel-decision-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+}
+
+.cancel-decision-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
