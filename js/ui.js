@@ -1118,9 +1118,11 @@ class UI {
         setVal('daily-summary', data.daily_activity_summary);
         setVal('overall-exp', data.overall_day_experience);
 
-        // Decisions
-        if (data.decisions && window.decisionsHandler) {
-            window.decisionsHandler.load(data.decisions);
+        // Decisions - Always load (even if empty array)
+        if (window.decisionsHandler) {
+            // Load decisions array, or empty array if not present
+            const decisionsData = data.decisions || [];
+            window.decisionsHandler.load(decisionsData);
         }
 
         // Update all counters
@@ -1150,6 +1152,12 @@ class UI {
             if (span) span.innerText = el.value;
         });
         document.querySelectorAll('.app-row input').forEach(el => el.value = "");
+        
+        // Clear decisions container
+        if (window.decisionsHandler) {
+            window.decisionsHandler.load([]);
+        }
+        
         this.setDefaultValues();
     }
 

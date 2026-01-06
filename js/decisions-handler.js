@@ -220,8 +220,11 @@ function loadDecisions(decisions) {
     const container = document.getElementById('decisions-container');
     if (!container) return;
     
+    // Always clear container first
     container.innerHTML = '';
-    if (Array.isArray(decisions)) {
+    
+    // Only load if decisions exist and is an array
+    if (Array.isArray(decisions) && decisions.length > 0) {
         decisions.forEach(d => addDecisionItem(d));
     }
 }
