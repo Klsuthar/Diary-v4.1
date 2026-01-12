@@ -626,9 +626,24 @@ class UI {
     updateWeatherSuggestions() {
         const entries = this.storage.getEntries();
         const weatherSet = new Set();
+        const dietSuggestions = {
+            'breakfast-list': new Set(),
+            'lunch-list': new Set(),
+            'dinner-list': new Set(),
+            'snacks-list': new Set()
+        };
+        
         Object.values(entries).forEach(entry => {
             const weather = entry.environment?.weather_condition;
             if (weather) weatherSet.add(weather);
+            
+            // Collect diet suggestions
+            if (entry.diet_and_nutrition) {
+                if (entry.diet_and_nutrition.breakfast) dietSuggestions['breakfast-list'].add(entry.diet_and_nutrition.breakfast);
+                if (entry.diet_and_nutrition.lunch) dietSuggestions['lunch-list'].add(entry.diet_and_nutrition.lunch);
+                if (entry.diet_and_nutrition.dinner) dietSuggestions['dinner-list'].add(entry.diet_and_nutrition.dinner);
+                if (entry.diet_and_nutrition.additional_items) dietSuggestions['snacks-list'].add(entry.diet_and_nutrition.additional_items);
+            }
         });
         
         const datalist = document.getElementById('weather-suggestions');
@@ -641,6 +656,19 @@ class UI {
                 }
             });
         }
+        
+        // Populate diet suggestions
+        Object.keys(dietSuggestions).forEach(listId => {
+            const datalist = document.getElementById(listId);
+            if (datalist) {
+                datalist.innerHTML = '';
+                dietSuggestions[listId].forEach(value => {
+                    const option = document.createElement('option');
+                    option.value = value;
+                    datalist.appendChild(option);
+                });
+            }
+        });
         
         // Personal Care Suggestions
         this.updatePersonalCareSuggestions();
@@ -659,20 +687,20 @@ class UI {
         const appNames = new Set();
         
         Object.values(entries).forEach(entry => {
-            const pc = entry.summary?.personal_care;
+            const pc = entry.personal_care;
             if (pc) {
-                if (pc.face_name) suggestions['face-name-list'].add(pc.face_name);
-                if (pc.face_brand) suggestions['face-brand-list'].add(pc.face_brand);
-                if (pc.hair_name) suggestions['hair-name-list'].add(pc.hair_name);
-                if (pc.hair_brand) suggestions['hair-brand-list'].add(pc.hair_brand);
+                if (pc.face_product_name) suggestions['face-name-list'].add(pc.face_product_name);
+                if (pc.face_product_brand) suggestions['face-brand-list'].add(pc.face_product_brand);
+                if (pc.hair_product_name) suggestions['hair-name-list'].add(pc.hair_product_name);
+                if (pc.hair_product_brand) suggestions['hair-brand-list'].add(pc.hair_product_brand);
                 if (pc.hair_oil) suggestions['hair-oil-list'].add(pc.hair_oil);
             }
             
-            // Collect app names
-            const apps = entry.summary?.activities?.top_apps;
+            // Collect app names from most_used_apps
+            const apps = entry.activities_and_productivity?.most_used_apps;
             if (apps && Array.isArray(apps)) {
                 apps.forEach(app => {
-                    if (app.name) appNames.add(app.name);
+                    if (app.name && app.name.trim()) appNames.add(app.name.trim());
                 });
             }
         });
@@ -903,7 +931,10 @@ class UI {
         this.hasUnsavedChanges = false;
         
         if (!data) {
-            this.setDefaultValues();
+            // Only set defaults for new entries (not in history)
+            if (!this.storage.hasEntry(date)) {
+                this.setDefaultValues();
+            }
             this.lastSavedData = null;
             this.hasUnsavedChanges = false;
             this.updateTabIndicators();
@@ -963,7 +994,25 @@ class UI {
             setVal('calories', data.health_and_fitness.kilocalorie);
             setVal('water-intake', data.health_and_fitness.water_intake_liters);
             // Trigger hydration visual update
-            document.getElementById('water-intake')?.dispatchEvent(new Event('input'));
+            const waterInput = document.getElementById('water-intake');
+            if (waterInput) {
+                waterInput.dispatchEvent(new Event('input'));
+                // Force update glasses display
+                const val = parseFloat(waterInput.value) || 0;
+                const glassCount = Math.min(8, Math.floor(val / 0.25));
+                const glasses = document.querySelectorAll('.glass-indicators i');
+                glasses.forEach((glass, idx) => {
+                    if (idx < glassCount) {
+                        glass.className = 'fas fa-glass-water filled';
+                        glass.style.color = '#3498db';
+                        glass.style.transform = 'scale(1.2)';
+                    } else {
+                        glass.className = 'far fa-circle';
+                        glass.style.color = '#ccc';
+                        glass.style.transform = 'scale(1)';
+                    }
+                });
+            }
 
             setVal('medications', data.health_and_fitness.medications_taken);
             setVal('symptoms', data.health_and_fitness.physical_symptoms);
@@ -1174,6 +1223,10 @@ class UI {
         setIfEmpty('aqi', '100');
         setIfEmpty('humidity', '50');
         setIfEmpty('uv-index', '5');
+        setIfEmpty('weight', '70');
+        setIfEmpty('height', '178');
+        setIfEmpty('chest', '90');
+        setIfEmpty('belly', '89');
         setIfEmpty('sleep-hours', '8:00');
         setIfEmpty('medications', 'No');
         setIfEmpty('symptoms', 'No');
